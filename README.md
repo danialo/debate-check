@@ -22,13 +22,20 @@ python -m debate_claim_extractor --input sample_transcript.txt --output claims.j
 
 ## 📋 Features
 
-This initial version focuses on identifying and categorizing different types of claims:
+### Core Claim Detection
+Identifies and categorizes different types of claims:
 
 - **Factual Claims**: Objective statements that can be verified
 - **Statistical Claims**: Numerical data and percentages  
 - **Causal Claims**: Cause-and-effect relationships
 - **Comparative Claims**: Comparisons between entities
 - **Historical Claims**: References to past events
+
+### 🆕 YouTube/Podcast Transcript Processing
+- **Smart Chunking**: Intelligently breaks long transcripts into logical segments
+- **Speaker Inference**: Identifies speakers using name mentions and linguistic patterns
+- **Claim Clustering**: Groups related claims by topic and argumentative stance
+- **Context Preservation**: Maintains claim context across transcript segments
 
 ## 🔧 Setup Instructions
 
@@ -90,6 +97,52 @@ This shows detailed processing information including:
 - Sentence segmentation counts
 - Claim detection by type
 - Post-processing steps
+
+### Example 5: 🆕 YouTube/Long Transcript Processing
+```bash
+# Test with the enhanced YouTube pipeline
+cd /path/to/debate-check
+source venv/bin/activate
+python test_youtube_pipeline.py
+```
+
+For long transcripts (>2000 characters), the system automatically:
+- **Chunks intelligently** at natural conversation boundaries
+- **Infers speakers** using name mentions and linguistic patterns
+- **Clusters related claims** by topic and stance
+- **Preserves context** across chunks
+
+**Sample YouTube Pipeline Output:**
+```json
+{
+  "claims": [...],
+  "youtube_enhanced": true,
+  "chunks_used": true,
+  "chunk_analysis": {
+    "total_chunks": 9,
+    "avg_chunk_size": 1454,
+    "speaker_inference": {
+      "CHARLES": 2,
+      "NEIL": 3,
+      "SPEAKER_A": 3,
+      "SPEAKER_B": 1
+    }
+  },
+  "clusters": [
+    {
+      "id": "cluster_0",
+      "type": "causal",
+      "stance": "neutral", 
+      "claims_count": 8,
+      "topics": ["choice", "psychology", "philosophy"],
+      "primary_claim": {
+        "text": "Representative claim from cluster",
+        "confidence": 0.65
+      }
+    }
+  ]
+}
+```
 
 ## 📊 Understanding the Output
 
@@ -157,11 +210,26 @@ CANDIDATE SMITH: Another answer.
 (INTERVIEWER): Statement in parentheses.
 ```
 
+### 🆕 YouTube/Podcast Transcript Format
+**NEW**: The system now handles **long transcripts without speaker labels**!
+
+**YouTube Auto-Transcript Format (Supported):**
+```
+Charles I want to compare notes okay on free will oh one of my favorite things here's my take it is true that at some level of resolution that we can observe causality is absolutely true given these initial conditions this is what will happen afterwards that's the physicist speaking so if you take it to its logical conclusion then there is no free will because everything is predetermined...
+```
+
+The enhanced pipeline automatically:
+- ✅ **Chunks** long text into conversation segments
+- ✅ **Infers speakers** from name mentions ("Neil", "Charles")
+- ✅ **Maintains context** across segments
+- ✅ **Groups related claims** into clusters
+
 ### Tips for Best Results
-1. **Clear Speaker Labels**: Use consistent `SPEAKER:` format
-2. **Complete Sentences**: The system works better with full sentences
-3. **Remove Timestamps**: The preprocessor handles basic cleanup, but manual removal of complex timestamps helps
-4. **Stage Directions**: Basic stage directions like `(applause)` are automatically removed
+1. **Standard Transcripts**: Use consistent `SPEAKER:` format when available
+2. **YouTube Transcripts**: System handles continuous text automatically
+3. **Complete Sentences**: The system works better with full sentences
+4. **Remove Timestamps**: The preprocessor handles basic cleanup
+5. **Stage Directions**: Basic stage directions like `(applause)` are automatically removed
 
 ## 🔧 Troubleshooting
 
@@ -220,10 +288,19 @@ python -m debate_claim_extractor --input your_file.txt --verbose
 
 ## 📝 Roadmap
 
-- [x] Claims extraction pipeline
-- [ ] Fact-checking integration
-- [ ] Logical fallacy detection
-- [ ] Multi-dimensional scoring
-- [ ] Audio processing (speech-to-text)
-- [ ] Web interface
-- [ ] Real-time analysis
+### ✅ Completed
+- [x] **Claims extraction pipeline** - Core 5-type claim detection
+- [x] **Smart transcript chunking** - YouTube/podcast transcript handling
+- [x] **Speaker inference** - Automatic speaker identification from context
+- [x] **Claim clustering** - Groups related claims by topic and stance
+- [x] **Enhanced JSON output** - Rich metadata and analysis
+
+### 🚧 In Progress
+- [ ] **Fact-checking integration** - API connections to fact-checking services
+- [ ] **Logical fallacy detection** - Pattern recognition for common fallacies
+
+### 🎯 Planned
+- [ ] **Multi-dimensional scoring** - Your comprehensive debate scoring system
+- [ ] **Audio processing** - Direct YouTube URL to claims pipeline
+- [ ] **Web interface** - User-friendly GUI for transcript upload/analysis
+- [ ] **Real-time analysis** - Live debate scoring and visualization
