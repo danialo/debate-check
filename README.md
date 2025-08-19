@@ -37,6 +37,12 @@ Identifies and categorizes different types of claims:
 - **Claim Clustering**: Groups related claims by topic and argumentative stance
 - **Context Preservation**: Maintains claim context across transcript segments
 
+### ✨ **NEW**: Fact-Checking Integration
+- **Multi-Service Verification**: Integrates Google Fact Check Tools API and local database
+- **Credibility Scoring**: Assigns verification scores and confidence ratings to claims
+- **Source Attribution**: Links verified claims to credible fact-checking sources
+- **Aggregated Results**: Combines multiple verification sources for comprehensive scoring
+
 ## 🔧 Setup Instructions
 
 ### 1. Navigate to the Project Directory
@@ -97,6 +103,30 @@ This shows detailed processing information including:
 - Sentence segmentation counts
 - Claim detection by type
 - Post-processing steps
+
+### Example 4b: 🔥 **NEW**: Fact-Checking with Local Database
+```bash
+python -m debate_claim_extractor --input sample_transcript.txt --fact-check --verbose
+```
+
+This enables fact-checking using the built-in local database, which includes:
+- Pre-verified claims about vaccines, climate change, unemployment data
+- Automatic similarity matching to find related fact-checks
+- Verification scores and source attribution
+
+### Example 4c: 🔥 **NEW**: Fact-Checking with Google API
+```bash
+# Set your Google Fact Check Tools API key
+export GOOGLE_FACT_CHECK_API_KEY="your-api-key-here"
+
+# Run with both Google API and local database
+python -m debate_claim_extractor --input sample_transcript.txt --fact-check --google-api-key $GOOGLE_FACT_CHECK_API_KEY --verbose
+```
+
+This enables comprehensive fact-checking using:
+- Google Fact Check Tools API for professional fact-checkers
+- Local database for common claims
+- Aggregated verification scores from multiple sources
 
 ### Example 5: 🆕 YouTube/Long Transcript Processing
 ```bash
@@ -294,9 +324,9 @@ python -m debate_claim_extractor --input your_file.txt --verbose
 - [x] **Speaker inference** - Automatic speaker identification from context
 - [x] **Claim clustering** - Groups related claims by topic and stance
 - [x] **Enhanced JSON output** - Rich metadata and analysis
+- [x] **Fact-checking integration** - Multi-service verification with Google Fact Check Tools and local database
 
 ### 🚧 In Progress
-- [ ] **Fact-checking integration** - API connections to fact-checking services
 - [ ] **Logical fallacy detection** - Pattern recognition for common fallacies
 
 ### 🎯 Planned

@@ -61,6 +61,98 @@ class YouTubePipeline(ClaimExtractionPipeline):
                 "source": source
             }
     
+    def extract_with_fact_checking(self, 
+                                  text: str, 
+                                  source: str = "unknown",
+                                  fact_config: Optional[Any] = None) -> Dict[str, Any]:
+        """
+        Enhanced extraction with fact-checking for YouTube-style transcripts
+        
+        Args:
+            text: Raw transcript text
+            source: Source identifier
+            fact_config: Fact-checking configuration
+            
+        Returns:
+            Enhanced results with fact-checking data
+        """
+        # First extract normally
+        result = self.extract(text, source)
+        
+        if "error" in result:
+            return result
+        
+        # Get claims from result
+        claims = result.get("claims", [])
+        if not claims:
+            logger.info("No claims to fact-check in YouTube pipeline")
+            return result
+        
+        # Convert dict claims to Claim objects if needed
+        from .models import Claim, ClaimType
+        claim_objects = []
+        for claim_data in claims:
+            if isinstance(claim_data, dict):
+                claim_obj = Claim(
+                    id=claim_data["id"],
+                    type=ClaimType(claim_data["type"]),
+                    text=claim_data["text"],
+                    speaker=claim_data["speaker"],
+                    sentence_id=claim_data["sentence_id"],
+                    turn_id=claim_data["turn_id"],
+                    char_start=claim_data["char_start"],
+                    char_end=claim_data["char_end"],
+                    context=claim_data.get("context"),
+                    confidence=claim_data["confidence"],
+                    timestamp=claim_data.get("timestamp")
+                )
+                claim_objects.append(claim_obj)
+            else:
+                claim_objects.append(claim_data)  # Already a Claim object
+        
+        try:
+            logger.info(f"Starting fact-checking for {len(claim_objects)} claims in YouTube pipeline")
+            
+            # Run fact-checking using parent pipeline infrastructure
+            import asyncio
+            fact_results = asyncio.run(self._run_fact_checking(claim_objects, fact_config))
+            
+            # Add fact-checking data to result
+            result["fact_checking_enabled"] = True
+            result["fact_check_results"] = [fr.model_dump() for fr in fact_results]
+            
+            # Update metadata
+            if "meta" not in result:
+                result["meta"] = {}
+            
+            result["meta"].update({
+                "fact_checking_performed": True,
+                "fact_checked_claims": len(fact_results),
+                "fact_checking_services": list(set(
+                    service for fr in fact_results for service in fr.services_used
+                )),
+                "verification_summary": {
+                    status: len([fr for fr in fact_results if fr.overall_status == status])
+                    for status in ["verified_true", "likely_true", "mixed", "likely_false", "verified_false", "unverified"]
+                }
+            })
+            
+            logger.info(f"YouTube fact-checking complete for {len(fact_results)} claims")
+            
+        except Exception as e:
+            logger.error(f"YouTube pipeline fact-checking failed: {e}")
+            logger.exception("YouTube fact-checking traceback:")
+            
+            if "meta" not in result:
+                result["meta"] = {}
+            
+            result["meta"].update({
+                "fact_checking_attempted": True,
+                "fact_checking_error": str(e)
+            })
+        
+        return result
+    
     def _process_long_transcript(self, text: str, source: str) -> Dict[str, Any]:
         """Process long YouTube transcript with chunking and clustering"""
         

@@ -5,6 +5,8 @@ Command line interface for debate claim extraction
 import sys
 import json
 import logging
+import os
+from datetime import datetime
 from pathlib import Path
 from typing import TextIO
 
@@ -12,6 +14,7 @@ import click
 
 from .pipeline import ClaimExtractionPipeline
 from .pipeline.youtube_pipeline import YouTubePipeline
+from .fact_checking import FactCheckConfig
 from .utils.logging import setup_logging
 
 
@@ -77,7 +80,29 @@ def _should_use_youtube_pipeline(text: str) -> bool:
     type=click.Path(exists=True),
     help="Configuration file path"
 )
-def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str):
+@click.option(
+    "--fact-check", "-fc",
+    is_flag=True,
+    help="Enable fact-checking of extracted claims"
+)
+@click.option(
+    "--google-api-key",
+    envvar="GOOGLE_FACT_CHECK_API_KEY",
+    help="Google Fact Check Tools API key (can also use GOOGLE_FACT_CHECK_API_KEY env var)"
+)
+@click.option(
+    "--fact-db-path",
+    type=click.Path(),
+    help="Path to local fact-checking database"
+)
+@click.option(
+    "--fact-timeout",
+    type=int,
+    default=10,
+    help="Fact-checking timeout in seconds (default: 10)"
+)
+def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str, 
+         fact_check: bool, google_api_key: str, fact_db_path: str, fact_timeout: int):
     """
     Extract factual claims from debate transcripts.
     
@@ -98,14 +123,43 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str)
             
         logger.info(f"Processing {len(text)} characters of input text")
         
+        # Configure fact-checking if enabled
+        fact_config = None
+        if fact_check:
+            logger.info("Fact-checking enabled")
+            fact_config = FactCheckConfig(
+                enabled=True,
+                timeout_seconds=fact_timeout,
+                google_fact_check={
+                    'enabled': bool(google_api_key),
+                    'api_key': google_api_key
+                },
+                local_database={
+                    'enabled': True,
+                    'database_path': fact_db_path or 'data/fact_checks.db'
+                }
+            )
+            
+            # Log fact-checking configuration
+            services = []
+            if google_api_key:
+                services.append("Google Fact Check Tools")
+            services.append("Local Database")
+            logger.info(f"Fact-checking services: {', '.join(services)}")
+        
         # Choose pipeline based on text length and characteristics
         config_path = Path(config) if config else None
+        source_name = getattr(input, 'name', 'stdin')
         
         # Use YouTube pipeline for long transcripts or continuous text without clear speakers
         if len(text) > 2000 or _should_use_youtube_pipeline(text):
             logger.info(f"Using YouTube-enhanced pipeline for {len(text)} character input")
             pipeline = YouTubePipeline(config_path=config_path)
-            result_data = pipeline.extract(text, source=getattr(input, 'name', 'stdin'))
+            
+            if fact_check:
+                result_data = pipeline.extract_with_fact_checking(text, source=source_name, fact_config=fact_config)
+            else:
+                result_data = pipeline.extract(text, source=source_name)
             
             # Convert to standard format for output
             if "error" in result_data:
@@ -117,16 +171,28 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str)
         else:
             logger.info("Using standard pipeline for short transcript")
             pipeline = ClaimExtractionPipeline(config_path=config_path)
-            result = pipeline.extract(text, source=getattr(input, 'name', 'stdin'))
-            result = result.model_dump()
+            
+            if fact_check:
+                result_obj = pipeline.extract_with_fact_checking(text, source=source_name, fact_config=fact_config)
+            else:
+                result_obj = pipeline.extract(text, source=source_name)
+            
+            result = result_obj.model_dump()
         
         # Output results
         if format == 'json':
+            def json_serializer(obj):
+                """Custom JSON serializer for non-serializable objects"""
+                if isinstance(obj, datetime):
+                    return obj.isoformat()
+                raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+            
             json.dump(
                 result,
                 output,
                 indent=2,
-                ensure_ascii=False
+                ensure_ascii=False,
+                default=json_serializer
             )
             output.write('\n')  # Add final newline for better terminal output
         
@@ -157,6 +223,23 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str)
             clusters_count = result.get('cluster_analysis', {}).get('total_clusters', 0)
             if clusters_count > 0:
                 logger.info(f"Claim clusters created: {clusters_count}")
+        
+        # Log fact-checking info if available
+        if result.get('fact_checking_enabled'):
+            fact_meta = result.get('meta', {})
+            if fact_meta.get('fact_checking_performed'):
+                fact_checked_count = fact_meta.get('fact_checked_claims', 0)
+                services_used = fact_meta.get('fact_checking_services', [])
+                logger.info(f"Fact-checking: {fact_checked_count} claims verified using {', '.join(services_used)}")
+                
+                # Show verification summary
+                verification_summary = fact_meta.get('verification_summary', {})
+                for status, count in verification_summary.items():
+                    if count > 0:
+                        logger.info(f"  {status.replace('_', ' ').title()}: {count}")
+            elif fact_meta.get('fact_checking_attempted'):
+                error_msg = fact_meta.get('fact_checking_error', 'Unknown error')
+                logger.warning(f"Fact-checking failed: {error_msg}")
                 
     except KeyboardInterrupt:
         logger.info("Processing interrupted by user")

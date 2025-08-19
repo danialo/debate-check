@@ -3,7 +3,7 @@ Data models for claim extraction pipeline
 """
 
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from uuid import uuid4
 from datetime import datetime
 
@@ -50,6 +50,10 @@ class ExtractionResult(BaseModel):
     """Complete result from the claim extraction pipeline"""
     claims: List[Claim]
     meta: dict = Field(default_factory=dict)
+    
+    # Fact-checking data (optional)
+    fact_checking_enabled: bool = Field(default=False, description="Whether fact-checking was performed")
+    fact_check_results: Optional[List[Dict[str, Any]]] = Field(default=None, description="Aggregated fact-check results")
     
     def model_post_init(self, __context) -> None:
         """Add metadata after initialization"""

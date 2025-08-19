@@ -3,6 +3,7 @@ Main claim extraction pipeline integrating all components
 """
 
 import logging
+import asyncio
 from pathlib import Path
 from typing import Optional
 
@@ -11,6 +12,7 @@ from .preprocessor import DebatePreprocessor
 from .segmenter import DebateSegmenter
 from .claim_detector import DebateClaimDetector
 from .postprocessor import ClaimPostprocessor
+from ..fact_checking import FactVerificationPipeline, FactCheckConfig
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,9 @@ class ClaimExtractionPipeline:
         self.segmenter = DebateSegmenter()
         self.claim_detector = DebateClaimDetector()
         self.postprocessor = ClaimPostprocessor()
+        
+        # Fact-checking pipeline (initialized on-demand)
+        self.fact_pipeline = None
         
         logger.info("Pipeline initialization complete")
     
@@ -115,3 +120,85 @@ class ClaimExtractionPipeline:
                     "pipeline_failed": True
                 }
             )
+    
+    def extract_with_fact_checking(self, 
+                                  text: str, 
+                                  source: str = "unknown",
+                                  fact_config: Optional[FactCheckConfig] = None) -> ExtractionResult:
+        """
+        Extract claims with integrated fact-checking.
+        
+        Args:
+            text: Raw debate transcript text
+            source: Source identifier for metadata
+            fact_config: Fact-checking configuration
+            
+        Returns:
+            ExtractionResult with claims and fact-checking data
+        """
+        # First, extract claims normally
+        result = self.extract(text, source)
+        
+        if not result.claims:
+            logger.info("No claims to fact-check")
+            return result
+        
+        # Run fact-checking if claims were found
+        try:
+            logger.info(f"Starting fact-checking for {len(result.claims)} claims")
+            
+            # Use asyncio to run fact-checking
+            fact_results = asyncio.run(self._run_fact_checking(result.claims, fact_config))
+            
+            # Update result with fact-checking data
+            result.fact_checking_enabled = True
+            result.fact_check_results = [fr.model_dump() for fr in fact_results]
+            
+            # Update metadata
+            result.meta.update({
+                "fact_checking_performed": True,
+                "fact_checked_claims": len(fact_results),
+                "fact_checking_services": list(set(
+                    service for fr in fact_results for service in fr.services_used
+                )),
+                "verification_summary": {
+                    status: len([fr for fr in fact_results if fr.overall_status == status])
+                    for status in ["verified_true", "likely_true", "mixed", "likely_false", "verified_false", "unverified"]
+                }
+            })
+            
+            logger.info(f"Fact-checking complete for {len(fact_results)} claims")
+            
+        except Exception as e:
+            logger.error(f"Fact-checking failed: {e}")
+            logger.exception("Fact-checking traceback:")
+            
+            # Update result to indicate fact-checking failed
+            result.meta.update({
+                "fact_checking_attempted": True,
+                "fact_checking_error": str(e)
+            })
+        
+        return result
+    
+    async def _run_fact_checking(self, claims, fact_config):
+        """Run fact-checking in async context"""
+        # Initialize fact-checking pipeline if needed
+        if self.fact_pipeline is None:
+            self.fact_pipeline = FactVerificationPipeline(fact_config)
+        
+        try:
+            # Verify all claims
+            fact_results = await self.fact_pipeline.verify_claims(claims)
+            return fact_results
+        finally:
+            # Clean up if needed
+            if self.fact_pipeline:
+                await self.fact_pipeline.close()
+    
+    def get_fact_checking_status(self):
+        """Get status of fact-checking services"""
+        if self.fact_pipeline is None:
+            return {"status": "not_initialized"}
+        
+        return self.fact_pipeline.get_service_status()
