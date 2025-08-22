@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Debate Analysis Tool{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Analyze Debate Transcript</h2>
+    <p class="text-muted">Paste your debate transcript below to get comprehensive analysis including claim extraction, fact-checking, fallacy detection, and multi-dimensional scoring.</p>
+    
+    <form action="{{ url_for('analyze') }}" method="post" id="analysis-form">
+        <div class="form-group">
+            <label for="transcript">Debate Transcript</label>
+            <textarea 
+                name="transcript" 
+                id="transcript" 
+                class="form-control" 
+                placeholder="Paste your debate transcript here...
+
+Examples of supported formats:
+
+SPEAKER A: Climate change is caused primarily by human activities.
+SPEAKER B: I disagree completely. Climate change is natural.
+
+Or for YouTube/podcast transcripts, just paste the continuous text and our system will automatically detect speakers and structure."
+                required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" id="analyze-btn">
+                <span id="btn-text">Analyze Transcript</span>
+                <span id="btn-loading" style="display: none;">
+                    <span class="loading"></span> Analyzing...
+                </span>
+            </button>
+        </div>
+    </form>
+    
+    <div class="mt-2 text-muted">
+        <small>
+            <strong>What you'll get:</strong> Comprehensive analysis including claim extraction, fact-checking with multiple sources, logical fallacy detection, and multi-dimensional debate scoring.
+        </small>
+    </div>
+</div>
+
+{% if recent_analyses %}
+<div class="card">
+    <h2>Recent Analyses</h2>
+    <p class="text-muted">Your recent transcript analyses</p>
+    
+    <div class="analysis-list">
+        {% for analysis in recent_analyses %}
+        <div class="analysis-item">
+            <div class="analysis-info">
+                <h4>Analysis {{ analysis.id }}</h4>
+                <div class="meta">
+                    {{ analysis.timestamp[:19] | replace('T', ' ') }} • 
+                    {{ analysis.input_length }} characters • 
+                    {{ analysis.claims_count }} claims
+                    {% if analysis.success %}
+                        <span class="status-success">✓ Completed</span>
+                    {% else %}
+                        <span class="status-error">✗ Failed</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <a href="{{ url_for('results', analysis_id=analysis.id) }}" class="btn btn-secondary btn-sm">
+                    View Results
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="text-center mt-2">
+        <a href="{{ url_for('recent_analyses') }}" class="btn btn-secondary btn-sm">
+            View All Analyses
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>How It Works</h2>
+    <div class="results-meta">
+        <div class="meta-card">
+            <span class="number">1</span>
+            <div class="label">Paste Transcript</div>
+        </div>
+        <div class="meta-card">
+            <span class="number">2</span>
+            <div class="label">Click Analyze</div>
+        </div>
+        <div class="meta-card">
+            <span class="number">3</span>
+            <div class="label">Get Insights</div>
+        </div>
+    </div>
+    
+    <div>
+        <h3>Analysis Features</h3>
+        <ul>
+            <li><strong>Claim Extraction:</strong> Identifies factual, statistical, causal, comparative, and historical claims</li>
+            <li><strong>Fact-Checking:</strong> Verifies claims using Wikipedia and local database</li>
+            <li><strong>Fallacy Detection:</strong> Detects logical fallacies (ad hominem, straw man, false dilemma, etc.)</li>
+            <li><strong>Scoring System:</strong> Multi-dimensional analysis of debate quality, speaker credibility, and argument strength</li>
+            <li><strong>Smart Processing:</strong> Handles both structured debates and YouTube/podcast transcripts</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('analysis-form').addEventListener('submit', function() {
+    const btn = document.getElementById('analyze-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnLoading = document.getElementById('btn-loading');
+    
+    btn.disabled = true;
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline';
+});
+</script>
+{% endblock %}

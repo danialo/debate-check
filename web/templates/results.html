@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - {{ analysis_id }}{% endblock %}
+
+{% block content %}
+{% set result = analysis_data.analysis_result %}
+
+<div class="results-header">
+    <h2>Analysis Results</h2>
+    <div>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary btn-sm">
+            ← New Analysis
+        </a>
+        <a href="{{ url_for('api_analysis', analysis_id=analysis_id) }}" class="btn btn-secondary btn-sm" target="_blank">
+            View JSON
+        </a>
+    </div>
+</div>
+
+{% if not result.success %}
+<div class="alert alert-error">
+    <strong>Analysis Failed:</strong> {{ result.error }}
+</div>
+{% else %}
+
+<!-- Overview Stats -->
+<div class="results-meta">
+    <div class="meta-card">
+        <span class="number">{{ result.result.claims | length }}</span>
+        <div class="label">Claims Extracted</div>
+    </div>
+    <div class="meta-card">
+        <span class="number">{{ result.result.meta.speakers | length if result.result.meta.speakers else 0 }}</span>
+        <div class="label">Speakers</div>
+    </div>
+    <div class="meta-card">
+        <span class="number">{{ result.result.fallacies | length if result.result.fallacies else 0 }}</span>
+        <div class="label">Fallacies Detected</div>
+    </div>
+    <div class="meta-card">
+        <span class="number">{{ analysis_data.input_length }}</span>
+        <div class="label">Characters</div>
+    </div>
+</div>
+
+<!-- Scoring Summary -->
+{% if result.result.scoring_enabled and result.result.scoring_result %}
+{% set scoring = result.result.scoring_result %}
+<div class="card">
+    <h2>Debate Score</h2>
+    <div class="scoring-summary">
+        <div class="score-main">
+            <div class="overall-score">{{ "%.2f" | format(scoring.debate_score.overall_score) }}</div>
+            <div class="rating">{{ scoring.summary.overall_rating }}</div>
+        </div>
+        
+        <div class="score-dimensions">
+            <div class="dimension-score">
+                <div class="score">{{ "%.2f" | format(scoring.debate_score.information_quality) }}</div>
+                <div class="name">Information Quality</div>
+            </div>
+            <div class="dimension-score">
+                <div class="score">{{ "%.2f" | format(scoring.debate_score.logical_consistency) }}</div>
+                <div class="name">Logical Consistency</div>
+            </div>
+            <div class="dimension-score">
+                <div class="score">{{ "%.2f" | format(scoring.debate_score.factual_accuracy) }}</div>
+                <div class="name">Factual Accuracy</div>
+            </div>
+            <div class="dimension-score">
+                <div class="score">{{ "%.2f" | format(scoring.debate_score.engagement_quality) }}</div>
+                <div class="name">Engagement Quality</div>
+            </div>
+        </div>
+    </div>
+    
+    {% if scoring.summary.strengths or scoring.summary.weaknesses %}
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+        {% if scoring.summary.strengths %}
+        <div>
+            <h3>Strengths</h3>
+            <ul>
+                {% for strength in scoring.summary.strengths %}
+                <li class="status-success">{{ strength }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        {% if scoring.summary.weaknesses %}
+        <div>
+            <h3>Areas for Improvement</h3>
+            <ul>
+                {% for weakness in scoring.summary.weaknesses %}
+                <li class="status-warning">{{ weakness }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if scoring.summary.recommendations %}
+    <div style="margin-top: 2rem;">
+        <h3>Recommendations</h3>
+        <ul>
+            {% for recommendation in scoring.summary.recommendations %}
+            <li>{{ recommendation }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Speaker Performance -->
+{% if result.result.scoring_enabled and result.result.scoring_result and result.result.scoring_result.debate_score.speaker_scores %}
+<div class="card">
+    <h2>Speaker Performance</h2>
+    <div class="results-meta">
+        {% for speaker, scores in result.result.scoring_result.debate_score.speaker_scores.items() %}
+        <div class="meta-card">
+            <span class="number">{{ "%.2f" | format(scores.credibility_score) }}</span>
+            <div class="label">{{ speaker }} Credibility</div>
+            <div class="text-muted" style="font-size: 0.8rem;">
+                {{ scores.total_claims }} claims • {{ scores.verified_claims }} verified
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Fact-Checking Summary -->
+{% if result.result.fact_checking_enabled %}
+<div class="card">
+    <h2>Fact-Checking Summary</h2>
+    {% if result.result.meta.verification_summary %}
+    <div class="results-meta">
+        {% for status, count in result.result.meta.verification_summary.items() %}
+        {% if count > 0 %}
+        <div class="meta-card">
+            <span class="number">{{ count }}</span>
+            <div class="label">{{ status | replace('_', ' ') | title }}</div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    <p class="text-muted">
+        Claims verified using: {{ result.result.meta.fact_checking_services | join(', ') if result.result.meta.fact_checking_services else 'N/A' }}
+    </p>
+</div>
+{% endif %}
+
+<!-- Claims List -->
+<div class="card claims-section">
+    <h2>Extracted Claims ({{ result.result.claims | length }})</h2>
+    
+    {% for claim in result.result.claims %}
+    <div class="claim-item">
+        <div class="claim-header">
+            <div class="d-flex align-items-center" style="gap: 1rem;">
+                <span class="claim-type">{{ claim.type }}</span>
+                <span class="claim-speaker">{{ claim.speaker }}</span>
+            </div>
+            <div class="d-flex align-items-center" style="gap: 1rem;">
+                {% if claim.confidence %}
+                <div title="Confidence: {{ '%.1f' | format(claim.confidence * 100) }}%">
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: {{ claim.confidence * 100 }}%;"></div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="claim-text">
+            "{{ claim.text }}"
+        </div>
+        
+        <div class="claim-meta">
+            <span>Confidence: {{ "%.1f" | format(claim.confidence * 100) }}%</span>
+            
+            {% if result.result.fact_check_results %}
+                {% for fact_result in result.result.fact_check_results %}
+                    {% if fact_result.claim_id == claim.id %}
+                    <span>
+                        Fact-check: 
+                        {% if fact_result.overall_status == 'likely_true' %}
+                            <span class="status-success">{{ fact_result.overall_status | replace('_', ' ') | title }}</span>
+                        {% elif fact_result.overall_status == 'likely_false' %}
+                            <span class="status-error">{{ fact_result.overall_status | replace('_', ' ') | title }}</span>
+                        {% else %}
+                            <span class="status-warning">{{ fact_result.overall_status | replace('_', ' ') | title }}</span>
+                        {% endif %}
+                        ({{ "%.1f" | format(fact_result.confidence * 100) }}%)
+                    </span>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        {% if claim.context %}
+        <details style="margin-top: 1rem;">
+            <summary style="cursor: pointer; color: #667eea;">View Context</summary>
+            <div style="margin-top: 0.5rem; padding: 1rem; background: #f8f9fa; border-radius: 4px; font-style: italic;">
+                {{ claim.context }}
+            </div>
+        </details>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Fallacies -->
+{% if result.result.fallacy_detection_enabled and result.result.fallacies %}
+<div class="card">
+    <h2>Detected Fallacies ({{ result.result.fallacies | length }})</h2>
+    
+    {% for fallacy in result.result.fallacies %}
+    <div class="claim-item" style="border-left-color: #dc3545;">
+        <div class="claim-header">
+            <div class="d-flex align-items-center" style="gap: 1rem;">
+                <span class="claim-type" style="background: #dc3545;">{{ fallacy.type | replace('_', ' ') | title }}</span>
+                <span class="claim-speaker">{{ fallacy.speaker }}</span>
+            </div>
+            <div class="d-flex align-items-center" style="gap: 1rem;">
+                <span class="text-muted">{{ fallacy.severity | title }} Severity</span>
+            </div>
+        </div>
+        
+        <div class="claim-text">
+            "{{ fallacy.text }}"
+        </div>
+        
+        <div class="claim-meta">
+            <span>Confidence: {{ "%.1f" | format(fallacy.confidence * 100) }}%</span>
+        </div>
+        
+        {% if fallacy.explanation %}
+        <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+            <strong>Explanation:</strong> {{ fallacy.explanation }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Analysis Details -->
+<div class="card">
+    <h2>Analysis Details</h2>
+    <div class="results-meta">
+        <div class="meta-card">
+            <span class="number">{{ analysis_data.timestamp[:19] | replace('T', ' ') }}</span>
+            <div class="label">Analyzed At</div>
+        </div>
+        <div class="meta-card">
+            <span class="number">{{ result.result.meta.sentences_processed if result.result.meta.sentences_processed else 'N/A' }}</span>
+            <div class="label">Sentences Processed</div>
+        </div>
+        <div class="meta-card">
+            <span class="number">{{ result.result.meta.raw_claims_detected if result.result.meta.raw_claims_detected else 'N/A' }}</span>
+            <div class="label">Raw Claims Detected</div>
+        </div>
+        <div class="meta-card">
+            <span class="number">{{ result.result.youtube_enhanced if result.result.youtube_enhanced else 'Standard' }}</span>
+            <div class="label">Pipeline Used</div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}

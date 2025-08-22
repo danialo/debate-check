@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Recent Analyses - Debate Analysis Tool{% endblock %}
+
+{% block content %}
+<div class="results-header">
+    <h2>Recent Analyses</h2>
+    <div>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary btn-sm">
+            ← New Analysis
+        </a>
+    </div>
+</div>
+
+{% if analyses %}
+<div class="card">
+    <div class="analysis-list">
+        {% for analysis in analyses %}
+        <div class="analysis-item">
+            <div class="analysis-info">
+                <h4>Analysis {{ analysis.id }}</h4>
+                <div class="meta">
+                    {{ analysis.timestamp[:19] | replace('T', ' ') }} • 
+                    {{ analysis.input_length }} characters • 
+                    {{ analysis.claims_count }} claims
+                    {% if analysis.success %}
+                        <span class="status-success">✓ Completed</span>
+                    {% else %}
+                        <span class="status-error">✗ Failed</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <a href="{{ url_for('results', analysis_id=analysis.id) }}" class="btn btn-secondary btn-sm">
+                    View Results
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="card text-center">
+    <h3>No Recent Analyses</h3>
+    <p class="text-muted">You haven't run any analyses yet. Start by analyzing your first debate transcript!</p>
+    <a href="{{ url_for('home') }}" class="btn btn-primary">
+        Start New Analysis
+    </a>
+</div>
+{% endif %}
+{% endblock %}

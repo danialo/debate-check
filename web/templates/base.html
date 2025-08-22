@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Debate Analysis Tool{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>{% block header_title %}Debate Analysis Tool{% endblock %}</h1>
+            <p>{% block header_subtitle %}Comprehensive claim extraction, fact-checking, and scoring{% endblock %}</p>
+        </div>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="container text-center text-muted" style="margin-top: 3rem; padding: 2rem 0; border-top: 1px solid #e9ecef;">
+        <p>&copy; 2025 Debate Analysis Tool. Built for comprehensive debate analysis.</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
