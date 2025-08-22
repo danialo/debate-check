@@ -31,6 +31,13 @@ Identifies and categorizes different types of claims:
 - **Comparative Claims**: Comparisons between entities
 - **Historical Claims**: References to past events
 
+#### Confidence Scoring
+Each claim is assigned a confidence score (0.0-1.0) based on linguistic patterns:
+- **High (0.7-1.0)**: Strong factual statements with clear markers
+- **Medium (0.5-0.7)**: Reasonable claims with some uncertainty
+- **Low (0.3-0.5)**: Ambiguous or uncertain statements
+Detailed documentation on confidence scoring is available in [docs/confidence_scoring.md](docs/confidence_scoring.md).
+
 ### 🆕 YouTube/Podcast Transcript Processing
 - **Smart Chunking**: Intelligently breaks long transcripts into logical segments
 - **Speaker Inference**: Identifies speakers using name mentions and linguistic patterns
@@ -38,10 +45,22 @@ Identifies and categorizes different types of claims:
 - **Context Preservation**: Maintains claim context across transcript segments
 
 ### ✨ **NEW**: Fact-Checking Integration
-- **Multi-Service Verification**: Integrates Google Fact Check Tools API and local database
+- **Multi-Service Verification**: Integrates Google Fact Check Tools API, Wikipedia, and local database
 - **Credibility Scoring**: Assigns verification scores and confidence ratings to claims
 - **Source Attribution**: Links verified claims to credible fact-checking sources
 - **Aggregated Results**: Combines multiple verification sources for comprehensive scoring
+
+### 🔥 **NEW**: Logical Fallacy Detection
+- **5 Core Fallacy Types**: Detects Ad Hominem, Straw Man, False Dilemma, Appeal to Authority, and Slippery Slope
+- **Pattern Recognition**: Uses advanced regex patterns and linguistic analysis
+- **Confidence Scoring**: Assigns confidence levels (High/Medium/Low) based on pattern strength
+- **Contextual Analysis**: Links fallacies to specific claims and speakers
+- **Severity Assessment**: Rates fallacy severity and provides explanations
+
+### 🚀 **NEW**: Full Analysis Mode
+- **Combined Pipeline**: Single command runs both fact-checking and fallacy detection
+- **Comprehensive Results**: Unified output with verification scores and fallacy identification
+- **Cross-Referenced Analysis**: Links fact-check results with detected logical fallacies
 
 ## 🔧 Setup Instructions
 
@@ -128,7 +147,34 @@ This enables comprehensive fact-checking using:
 - Local database for common claims
 - Aggregated verification scores from multiple sources
 
-### Example 5: 🆕 YouTube/Long Transcript Processing
+### Example 5: 🔥 **NEW**: Logical Fallacy Detection
+```bash
+python -m debate_claim_extractor --input sample_transcript.txt --fallacy-detection --verbose
+```
+
+This enables logical fallacy detection, which identifies:
+- **Ad Hominem**: Personal attacks instead of addressing arguments
+- **Straw Man**: Misrepresenting opponent's position
+- **False Dilemma**: Presenting only two options when more exist
+- **Appeal to Authority**: Inappropriate appeals to vague or irrelevant authorities
+- **Slippery Slope**: Claiming one event will lead to extreme consequences
+
+### Example 6: 🚀 **NEW**: Full Analysis Mode (Fact-Checking + Fallacy Detection)
+```bash
+# Complete analysis with both fact-checking and fallacy detection
+python -m debate_claim_extractor --input sample_transcript.txt --full-analysis --verbose
+
+# Alternative: Enable both features explicitly
+python -m debate_claim_extractor --input sample_transcript.txt --fact-check --fallacy-detection --verbose
+```
+
+This comprehensive analysis provides:
+- **Claim extraction** with confidence scoring
+- **Fact verification** using multiple sources (Wikipedia, local database, Google API if available)
+- **Fallacy detection** with pattern matching and severity assessment
+- **Cross-referenced results** linking claims to verification status and detected fallacies
+
+### Example 7: 🆕 YouTube/Long Transcript Processing
 ```bash
 # Test with the enhanced YouTube pipeline
 cd /path/to/debate-check
@@ -176,7 +222,7 @@ For long transcripts (>2000 characters), the system automatically:
 
 ## 📊 Understanding the Output
 
-### JSON Structure
+### Basic JSON Structure
 ```json
 {
   "claims": [
@@ -209,6 +255,81 @@ For long transcripts (>2000 characters), the system automatically:
     "utterances_processed": 15,
     "sentences_processed": 57,
     "raw_claims_detected": 68
+  }
+}
+```
+
+### 🔥 **NEW**: Full Analysis Output (with Fact-Checking + Fallacy Detection)
+```json
+{
+  "claims": [
+    {
+      "id": "claim-001",
+      "type": "statistical", 
+      "text": "Unemployment decreased by 15% last year",
+      "speaker": "CANDIDATE_A",
+      "confidence": 0.85,
+      "fact_check_result": {
+        "status": "likely_false",
+        "confidence": 0.78,
+        "sources": [
+          {
+            "service": "wikipedia",
+            "status": "likely_false",
+            "confidence": 0.65,
+            "explanation": "Wikipedia articles on unemployment statistics contradict this claim"
+          },
+          {
+            "service": "local_database",
+            "status": "verified_false",
+            "confidence": 0.90,
+            "explanation": "BLS data shows unemployment decreased by only 8% last year"
+          }
+        ]
+      }
+    }
+  ],
+  "fallacies": [
+    {
+      "id": "fallacy-001",
+      "type": "ad_hominem",
+      "text": "You can't trust him because he's a typical politician",
+      "speaker": "CANDIDATE_B",
+      "target_claim_id": "claim-001",
+      "confidence": 0.82,
+      "severity": "high",
+      "patterns_matched": ["personal_attack", "character_dismissal"],
+      "explanation": "Ad hominem fallacy: Attacking the person making the argument rather than addressing the argument itself."
+    }
+  ],
+  "meta": {
+    "fact_checking_performed": true,
+    "fact_checked_claims": 15,
+    "fact_checking_services": ["wikipedia", "local_database"],
+    "verification_summary": {
+      "likely_true": 4,
+      "mixed": 6,
+      "likely_false": 5
+    },
+    "fallacy_detection_performed": true,
+    "fallacies_detected": 3
+  },
+  "fallacy_summary": {
+    "by_type": {
+      "ad_hominem": 1,
+      "straw_man": 1,
+      "false_dilemma": 1
+    },
+    "by_severity": {
+      "high": 2,
+      "medium": 1,
+      "low": 0
+    },
+    "confidence_distribution": {
+      "high": 2,
+      "medium": 1,
+      "low": 0
+    }
   }
 }
 ```
@@ -316,6 +437,26 @@ python -m debate_claim_extractor --input your_file.txt --verbose
    python -m debate_claim_extractor --input sample_transcript.txt | jq '.claims[] | select(.confidence > 0.6)'
    ```
 
+5. **🔥 Extract detected fallacies only**:
+   ```bash
+   python -m debate_claim_extractor --input sample_transcript.txt --fallacy-detection | jq '.fallacies[]'
+   ```
+
+6. **🔥 Show fact-check verification status summary**:
+   ```bash
+   python -m debate_claim_extractor --input sample_transcript.txt --fact-check | jq '.meta.verification_summary'
+   ```
+
+7. **🚀 Run full analysis and extract only high-severity fallacies**:
+   ```bash
+   python -m debate_claim_extractor --input sample_transcript.txt --full-analysis | jq '.fallacies[] | select(.severity == "high")'
+   ```
+
+8. **🚀 Show fact-checked claims with their verification status**:
+   ```bash
+   python -m debate_claim_extractor --input sample_transcript.txt --fact-check | jq '.claims[] | {text: .text, verification: .fact_check_result.status, confidence: .fact_check_result.confidence}'
+   ```
+
 ## 📝 Roadmap
 
 ### ✅ Completed
@@ -324,10 +465,9 @@ python -m debate_claim_extractor --input your_file.txt --verbose
 - [x] **Speaker inference** - Automatic speaker identification from context
 - [x] **Claim clustering** - Groups related claims by topic and stance
 - [x] **Enhanced JSON output** - Rich metadata and analysis
-- [x] **Fact-checking integration** - Multi-service verification with Google Fact Check Tools and local database
-
-### 🚧 In Progress
-- [ ] **Logical fallacy detection** - Pattern recognition for common fallacies
+- [x] **Fact-checking integration** - Multi-service verification with Wikipedia, Google API, and local database
+- [x] **Logical fallacy detection** - 5 core fallacy types with pattern recognition and confidence scoring
+- [x] **Full analysis mode** - Combined fact-checking and fallacy detection pipeline
 
 ### 🎯 Planned
 - [ ] **Multi-dimensional scoring** - Your comprehensive debate scoring system

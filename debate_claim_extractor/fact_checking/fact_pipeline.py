@@ -17,6 +17,7 @@ from .fact_models import (
     status_from_score
 )
 from .services import GoogleFactCheckService, LocalFactCheckService
+from .services.wikipedia_service import WikipediaFactCheckService
 from ..pipeline.models import Claim
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,19 @@ class FactVerificationPipeline:
                     self.logger.warning("Local database service not available")
             except Exception as e:
                 self.logger.error(f"Failed to initialize local database service: {e}")
+        
+        # Wikipedia service (always enabled if no config specified)
+        wikipedia_enabled = self.config.wikipedia.get('enabled', True) if hasattr(self.config, 'wikipedia') else True
+        if wikipedia_enabled:
+            try:
+                wikipedia_service = WikipediaFactCheckService(
+                    timeout_seconds=self.config.timeout_seconds
+                )
+                # Initialize Wikipedia service (will be checked for availability during first use)
+                self.services.append(wikipedia_service)
+                self.logger.info("Wikipedia service initialized")
+            except Exception as e:
+                self.logger.error(f"Failed to initialize Wikipedia service: {e}")
         
         self.logger.info(f"Initialized {len(self.services)} fact-checking service(s)")
     

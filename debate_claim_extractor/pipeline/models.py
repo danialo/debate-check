@@ -44,6 +44,10 @@ class Claim(BaseModel):
     context: Optional[str] = None  # Surrounding sentences for context
     confidence: float = Field(default=0.5, ge=0.0, le=1.0)
     timestamp: Optional[str] = None
+    
+    # Fallacy detection integration (optional)
+    fallacies: Optional[List[Dict[str, Any]]] = Field(default=None, description="Detected logical fallacies in this claim")
+    fallacy_score: Optional[float] = Field(default=None, description="Overall fallacy confidence score")
 
 
 class ExtractionResult(BaseModel):
@@ -54,6 +58,11 @@ class ExtractionResult(BaseModel):
     # Fact-checking data (optional)
     fact_checking_enabled: bool = Field(default=False, description="Whether fact-checking was performed")
     fact_check_results: Optional[List[Dict[str, Any]]] = Field(default=None, description="Aggregated fact-check results")
+    
+    # Fallacy detection data (optional)
+    fallacy_detection_enabled: bool = Field(default=False, description="Whether fallacy detection was performed")
+    fallacies: Optional[List[Dict[str, Any]]] = Field(default=None, description="Detected logical fallacies")
+    fallacy_summary: Optional[Dict[str, Any]] = Field(default=None, description="Fallacy detection summary statistics")
     
     def model_post_init(self, __context) -> None:
         """Add metadata after initialization"""

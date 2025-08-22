@@ -13,6 +13,7 @@ from .segmenter import DebateSegmenter
 from .claim_detector import DebateClaimDetector
 from .postprocessor import ClaimPostprocessor
 from ..fact_checking import FactVerificationPipeline, FactCheckConfig
+from ..fallacy_detection import DebateFallacyDetector, FallacyDetectionSummary
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,9 @@ class ClaimExtractionPipeline:
         
         # Fact-checking pipeline (initialized on-demand)
         self.fact_pipeline = None
+        
+        # Fallacy detection (initialized on-demand)
+        self.fallacy_detector = None
         
         logger.info("Pipeline initialization complete")
     
@@ -195,6 +199,166 @@ class ClaimExtractionPipeline:
             # Clean up if needed
             if self.fact_pipeline:
                 await self.fact_pipeline.close()
+    
+    def extract_with_fallacy_detection(self, text: str, source: str = "unknown") -> ExtractionResult:
+        """
+        Extract claims with integrated fallacy detection.
+        
+        Args:
+            text: Raw debate transcript text
+            source: Source identifier for metadata
+            
+        Returns:
+            ExtractionResult with claims and fallacy data
+        """
+        # First, extract claims normally (keeping sentences for fallacy detection)
+        try:
+            logger.info(f"Starting claim extraction with fallacy detection for source: {source}")
+            
+            # Step 1: Preprocessing
+            logger.debug("Step 1: Preprocessing text")
+            utterances = self.preprocessor.process(text)
+            
+            if not utterances:
+                logger.warning("No utterances found after preprocessing")
+                return ExtractionResult(
+                    claims=[],
+                    meta={"source": source, "error": "No utterances found"}
+                )
+            
+            # Step 2: Segmentation
+            logger.debug("Step 2: Segmenting into sentences")
+            sentences = self.segmenter.segment(utterances)
+            
+            if not sentences:
+                logger.warning("No sentences found after segmentation")
+                return ExtractionResult(
+                    claims=[],
+                    meta={"source": source, "error": "No sentences found"}
+                )
+            
+            # Step 3: Claim Detection
+            logger.debug("Step 3: Detecting claims")
+            raw_claims = self.claim_detector.detect_claims(sentences)
+            
+            # Step 4: Post-processing
+            logger.debug("Step 4: Post-processing claims")
+            final_claims = self.postprocessor.process(raw_claims, sentences)
+            
+            # Step 5: Fallacy Detection
+            logger.debug("Step 5: Detecting fallacies")
+            fallacies = self._run_fallacy_detection(final_claims, sentences)
+            
+            # Step 6: Create results with fallacy data
+            result = ExtractionResult(claims=final_claims)
+            result.fallacy_detection_enabled = True
+            result.fallacies = [f.to_dict() for f in fallacies]
+            result.fallacy_summary = FallacyDetectionSummary.from_fallacies(fallacies).to_dict()
+            
+            # Update metadata
+            result.meta.update({
+                "source": source,
+                "utterances_processed": len(utterances),
+                "sentences_processed": len(sentences),
+                "raw_claims_detected": len(raw_claims),
+                "fallacy_detection_performed": True,
+                "fallacies_detected": len(fallacies)
+            })
+            
+            logger.info(f"Extraction with fallacy detection complete: {len(final_claims)} claims, {len(fallacies)} fallacies from {source}")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Pipeline with fallacy detection failed for source {source}: {e}")
+            logger.exception("Full traceback:")
+            
+            # Return error result instead of raising
+            return ExtractionResult(
+                claims=[],
+                meta={
+                    "source": source,
+                    "error": str(e),
+                    "pipeline_failed": True
+                }
+            )
+    
+    def extract_with_all_analysis(self, 
+                                text: str, 
+                                source: str = "unknown",
+                                fact_config: Optional[FactCheckConfig] = None) -> ExtractionResult:
+        """
+        Extract claims with both fact-checking and fallacy detection.
+        
+        Args:
+            text: Raw debate transcript text
+            source: Source identifier for metadata
+            fact_config: Fact-checking configuration
+            
+        Returns:
+            ExtractionResult with claims, fact-checking, and fallacy data
+        """
+        # Start with fallacy detection (which includes claim extraction)
+        result = self.extract_with_fallacy_detection(text, source)
+        
+        if not result.claims:
+            logger.info("No claims to fact-check")
+            return result
+        
+        # Add fact-checking to the result
+        try:
+            logger.info(f"Starting fact-checking for {len(result.claims)} claims")
+            
+            # Use asyncio to run fact-checking
+            fact_results = asyncio.run(self._run_fact_checking(result.claims, fact_config))
+            
+            # Update result with fact-checking data
+            result.fact_checking_enabled = True
+            result.fact_check_results = [fr.model_dump() for fr in fact_results]
+            
+            # Update metadata
+            result.meta.update({
+                "fact_checking_performed": True,
+                "fact_checked_claims": len(fact_results),
+                "fact_checking_services": list(set(
+                    service for fr in fact_results for service in fr.services_used
+                )),
+                "verification_summary": {
+                    status: len([fr for fr in fact_results if fr.overall_status == status])
+                    for status in ["verified_true", "likely_true", "mixed", "likely_false", "verified_false", "unverified"]
+                }
+            })
+            
+            logger.info(f"Complete analysis finished: {len(result.claims)} claims fact-checked")
+            
+        except Exception as e:
+            logger.error(f"Fact-checking failed in complete analysis: {e}")
+            logger.exception("Fact-checking traceback:")
+            
+            # Update result to indicate fact-checking failed
+            result.meta.update({
+                "fact_checking_attempted": True,
+                "fact_checking_error": str(e)
+            })
+        
+        return result
+    
+    def _run_fallacy_detection(self, claims, sentences):
+        """Run fallacy detection on claims and sentences"""
+        # Initialize fallacy detector if needed
+        if self.fallacy_detector is None:
+            self.fallacy_detector = DebateFallacyDetector()
+        
+        # Detect fallacies
+        fallacies = self.fallacy_detector.detect_fallacies(claims, sentences)
+        
+        # Update claims with fallacy information
+        for claim in claims:
+            claim_fallacies = [f for f in fallacies if f.target_claim_id == claim.id]
+            if claim_fallacies:
+                claim.fallacies = [f.to_dict() for f in claim_fallacies]
+                claim.fallacy_score = sum(f.confidence for f in claim_fallacies) / len(claim_fallacies)
+        
+        return fallacies
     
     def get_fact_checking_status(self):
         """Get status of fact-checking services"""

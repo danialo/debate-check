@@ -165,15 +165,28 @@ def calculate_weighted_score(results: List[FactCheckResult]) -> float:
     if not results:
         return 0.5  # Neutral score if no results
     
+    # Filter out zero-confidence results to avoid skewing
+    meaningful_results = [r for r in results if r.confidence > 0.01]
+    
+    if not meaningful_results:
+        # If all results have zero confidence, take the best verification score
+        return max(r.verification_score for r in results)
+    
     total_weight = 0.0
     weighted_sum = 0.0
     
-    for result in results:
+    for result in meaningful_results:
         # Weight by confidence and source credibility
         weight = result.confidence
         if result.sources:
             avg_credibility = sum(s.credibility_score for s in result.sources) / len(result.sources)
             weight *= avg_credibility
+        else:
+            # If no sources, use a base credibility
+            weight *= 0.5
+        
+        # Give a minimum weight to prevent complete exclusion
+        weight = max(weight, 0.1)
         
         weighted_sum += result.verification_score * weight
         total_weight += weight
@@ -183,11 +196,11 @@ def calculate_weighted_score(results: List[FactCheckResult]) -> float:
 
 def status_from_score(score: float) -> VerificationStatus:
     """Convert numeric score to verification status"""
-    if score >= 0.9:
+    if score >= 0.75:
         return VerificationStatus.VERIFIED_TRUE
-    elif score >= 0.7:
+    elif score >= 0.45:  # Lowered threshold for LIKELY_TRUE
         return VerificationStatus.LIKELY_TRUE
-    elif score >= 0.3:
+    elif score >= 0.25:  # Adjusted MIXED threshold
         return VerificationStatus.MIXED
     elif score >= 0.1:
         return VerificationStatus.LIKELY_FALSE

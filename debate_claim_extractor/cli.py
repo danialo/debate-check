@@ -101,8 +101,19 @@ def _should_use_youtube_pipeline(text: str) -> bool:
     default=10,
     help="Fact-checking timeout in seconds (default: 10)"
 )
+@click.option(
+    "--fallacy-detection", "-fd",
+    is_flag=True,
+    help="Enable logical fallacy detection in claims"
+)
+@click.option(
+    "--full-analysis", "-fa",
+    is_flag=True,
+    help="Enable both fact-checking and fallacy detection (equivalent to --fact-check --fallacy-detection)"
+)
 def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str, 
-         fact_check: bool, google_api_key: str, fact_db_path: str, fact_timeout: int):
+         fact_check: bool, google_api_key: str, fact_db_path: str, fact_timeout: int,
+         fallacy_detection: bool, full_analysis: bool):
     """
     Extract factual claims from debate transcripts.
     
@@ -122,6 +133,16 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str,
             sys.exit(1)
             
         logger.info(f"Processing {len(text)} characters of input text")
+        
+        # Handle full analysis flag
+        if full_analysis:
+            fact_check = True
+            fallacy_detection = True
+            logger.info("Full analysis enabled: fact-checking + fallacy detection")
+        
+        # Log analysis options
+        if fallacy_detection:
+            logger.info("Fallacy detection enabled")
         
         # Configure fact-checking if enabled
         fact_config = None
@@ -156,8 +177,13 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str,
             logger.info(f"Using YouTube-enhanced pipeline for {len(text)} character input")
             pipeline = YouTubePipeline(config_path=config_path)
             
-            if fact_check:
+            # Choose the right extraction method based on enabled features
+            if fact_check and fallacy_detection:
+                result_data = pipeline.extract_with_all_analysis(text, source=source_name, fact_config=fact_config)
+            elif fact_check:
                 result_data = pipeline.extract_with_fact_checking(text, source=source_name, fact_config=fact_config)
+            elif fallacy_detection:
+                result_data = pipeline.extract_with_fallacy_detection(text, source=source_name)
             else:
                 result_data = pipeline.extract(text, source=source_name)
             
@@ -172,8 +198,13 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str,
             logger.info("Using standard pipeline for short transcript")
             pipeline = ClaimExtractionPipeline(config_path=config_path)
             
-            if fact_check:
+            # Choose the right extraction method based on enabled features
+            if fact_check and fallacy_detection:
+                result_obj = pipeline.extract_with_all_analysis(text, source=source_name, fact_config=fact_config)
+            elif fact_check:
                 result_obj = pipeline.extract_with_fact_checking(text, source=source_name, fact_config=fact_config)
+            elif fallacy_detection:
+                result_obj = pipeline.extract_with_fallacy_detection(text, source=source_name)
             else:
                 result_obj = pipeline.extract(text, source=source_name)
             
@@ -240,6 +271,37 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str,
             elif fact_meta.get('fact_checking_attempted'):
                 error_msg = fact_meta.get('fact_checking_error', 'Unknown error')
                 logger.warning(f"Fact-checking failed: {error_msg}")
+        
+        # Log fallacy detection info if available
+        if result.get('fallacy_detection_enabled'):
+            fallacy_meta = result.get('meta', {})
+            fallacy_summary = result.get('fallacy_summary', {})
+            
+            if fallacy_meta.get('fallacy_detection_performed'):
+                fallacies_detected = fallacy_meta.get('fallacies_detected', 0)
+                logger.info(f"Fallacy detection: {fallacies_detected} logical fallacies detected")
+                
+                # Show fallacy type breakdown
+                fallacy_types = fallacy_summary.get('by_type', {})
+                for fallacy_type, count in fallacy_types.items():
+                    if count > 0:
+                        logger.info(f"  {fallacy_type.replace('_', ' ').title()}: {count}")
+                
+                # Show fallacy severity distribution
+                severity_dist = fallacy_summary.get('by_severity', {})
+                if severity_dist:
+                    logger.info(f"Fallacy severity distribution:")
+                    for severity, count in severity_dist.items():
+                        if count > 0:
+                            logger.info(f"  {severity.title()}: {count}")
+                
+                # Show confidence distribution
+                confidence_dist = fallacy_summary.get('confidence_distribution', {})
+                if confidence_dist:
+                    total_high = confidence_dist.get('high', 0)
+                    total_medium = confidence_dist.get('medium', 0)
+                    total_low = confidence_dist.get('low', 0)
+                    logger.info(f"Fallacy confidence: {total_high} high, {total_medium} medium, {total_low} low")
                 
     except KeyboardInterrupt:
         logger.info("Processing interrupted by user")
