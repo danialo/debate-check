@@ -14,6 +14,7 @@ from .claim_detector import DebateClaimDetector
 from .postprocessor import ClaimPostprocessor
 from ..fact_checking import FactVerificationPipeline, FactCheckConfig
 from ..fallacy_detection import DebateFallacyDetector, FallacyDetectionSummary
+from ..scoring import ScoringPipeline
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,9 @@ class ClaimExtractionPipeline:
         
         # Fallacy detection (initialized on-demand)
         self.fallacy_detector = None
+        
+        # Scoring pipeline (initialized on-demand)
+        self.scoring_pipeline = None
         
         logger.info("Pipeline initialization complete")
     
@@ -359,6 +363,140 @@ class ClaimExtractionPipeline:
                 claim.fallacy_score = sum(f.confidence for f in claim_fallacies) / len(claim_fallacies)
         
         return fallacies
+    
+    def _run_scoring(self, result: ExtractionResult, source: str = "unknown"):
+        """Run scoring on extraction result with claims, fact-checks, and fallacies."""
+        try:
+            logger.info(f"Starting scoring analysis for {len(result.claims)} claims")
+            
+            # Initialize scoring pipeline if needed
+            if self.scoring_pipeline is None:
+                self.scoring_pipeline = ScoringPipeline()
+            
+            # Run scoring on the extraction result
+            scoring_result = self.scoring_pipeline.score_extraction_result(result, source=source)
+            
+            # Update result with scoring data
+            result.scoring_enabled = True
+            result.scoring_result = scoring_result.model_dump()
+            
+            # Update metadata
+            result.meta.update({
+                "scoring_performed": scoring_result.scoring_performed,
+                "scoring_time_seconds": scoring_result.processing_time_seconds
+            })
+            
+            if scoring_result.scoring_error:
+                result.meta["scoring_error"] = scoring_result.scoring_error
+                logger.warning(f"Scoring completed with error: {scoring_result.scoring_error}")
+            else:
+                logger.info(f"Scoring complete: {scoring_result.debate_score.overall_score:.3f} overall score")
+                
+        except Exception as e:
+            logger.error(f"Scoring failed: {e}")
+            logger.exception("Scoring traceback:")
+            
+            # Update result to indicate scoring failed
+            result.meta.update({
+                "scoring_attempted": True,
+                "scoring_error": str(e)
+            })
+    
+    def extract_with_scoring(self, text: str, source: str = "unknown") -> ExtractionResult:
+        """
+        Extract claims with integrated scoring.
+        
+        Args:
+            text: Raw debate transcript text
+            source: Source identifier for metadata
+            
+        Returns:
+            ExtractionResult with claims and scoring data
+        """
+        # First, extract claims normally
+        result = self.extract(text, source)
+        
+        if not result.claims:
+            logger.info("No claims to score")
+            return result
+        
+        # Run scoring
+        self._run_scoring(result, source)
+        return result
+    
+    def extract_with_fact_checking_and_scoring(self, 
+                                             text: str, 
+                                             source: str = "unknown",
+                                             fact_config: Optional[FactCheckConfig] = None) -> ExtractionResult:
+        """
+        Extract claims with fact-checking and scoring.
+        
+        Args:
+            text: Raw debate transcript text
+            source: Source identifier for metadata
+            fact_config: Fact-checking configuration
+            
+        Returns:
+            ExtractionResult with claims, fact-checking, and scoring data
+        """
+        # First, run fact-checking
+        result = self.extract_with_fact_checking(text, source, fact_config)
+        
+        if not result.claims:
+            logger.info("No claims to score")
+            return result
+        
+        # Run scoring
+        self._run_scoring(result, source)
+        return result
+    
+    def extract_with_fallacy_detection_and_scoring(self, text: str, source: str = "unknown") -> ExtractionResult:
+        """
+        Extract claims with fallacy detection and scoring.
+        
+        Args:
+            text: Raw debate transcript text
+            source: Source identifier for metadata
+            
+        Returns:
+            ExtractionResult with claims, fallacy detection, and scoring data
+        """
+        # First, run fallacy detection
+        result = self.extract_with_fallacy_detection(text, source)
+        
+        if not result.claims:
+            logger.info("No claims to score")
+            return result
+        
+        # Run scoring
+        self._run_scoring(result, source)
+        return result
+    
+    def extract_with_comprehensive_analysis(self, 
+                                          text: str, 
+                                          source: str = "unknown",
+                                          fact_config: Optional[FactCheckConfig] = None) -> ExtractionResult:
+        """
+        Extract claims with fact-checking, fallacy detection, and scoring.
+        
+        Args:
+            text: Raw debate transcript text
+            source: Source identifier for metadata
+            fact_config: Fact-checking configuration
+            
+        Returns:
+            ExtractionResult with claims, fact-checking, fallacy detection, and scoring data
+        """
+        # First, run complete analysis (fact-checking + fallacy detection)
+        result = self.extract_with_all_analysis(text, source, fact_config)
+        
+        if not result.claims:
+            logger.info("No claims to score")
+            return result
+        
+        # Run scoring
+        self._run_scoring(result, source)
+        return result
     
     def get_fact_checking_status(self):
         """Get status of fact-checking services"""

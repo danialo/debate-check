@@ -197,12 +197,20 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str,
             pipeline = YouTubePipeline(config_path=config_path)
             
             # Choose the right extraction method based on enabled features
-            if fact_check and fallacy_detection:
+            if fact_check and fallacy_detection and scoring:
+                result_data = pipeline.extract_with_comprehensive_analysis(text, source=source_name, fact_config=fact_config)
+            elif fact_check and fallacy_detection:
                 result_data = pipeline.extract_with_all_analysis(text, source=source_name, fact_config=fact_config)
+            elif fact_check and scoring:
+                result_data = pipeline.extract_with_fact_checking_and_scoring(text, source=source_name, fact_config=fact_config)
+            elif fallacy_detection and scoring:
+                result_data = pipeline.extract_with_fallacy_detection_and_scoring(text, source=source_name)
             elif fact_check:
                 result_data = pipeline.extract_with_fact_checking(text, source=source_name, fact_config=fact_config)
             elif fallacy_detection:
                 result_data = pipeline.extract_with_fallacy_detection(text, source=source_name)
+            elif scoring:
+                result_data = pipeline.extract_with_scoring(text, source=source_name)
             else:
                 result_data = pipeline.extract(text, source=source_name)
             
@@ -218,12 +226,20 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str,
             pipeline = ClaimExtractionPipeline(config_path=config_path)
             
             # Choose the right extraction method based on enabled features
-            if fact_check and fallacy_detection:
+            if fact_check and fallacy_detection and scoring:
+                result_obj = pipeline.extract_with_comprehensive_analysis(text, source=source_name, fact_config=fact_config)
+            elif fact_check and fallacy_detection:
                 result_obj = pipeline.extract_with_all_analysis(text, source=source_name, fact_config=fact_config)
+            elif fact_check and scoring:
+                result_obj = pipeline.extract_with_fact_checking_and_scoring(text, source=source_name, fact_config=fact_config)
+            elif fallacy_detection and scoring:
+                result_obj = pipeline.extract_with_fallacy_detection_and_scoring(text, source=source_name)
             elif fact_check:
                 result_obj = pipeline.extract_with_fact_checking(text, source=source_name, fact_config=fact_config)
             elif fallacy_detection:
                 result_obj = pipeline.extract_with_fallacy_detection(text, source=source_name)
+            elif scoring:
+                result_obj = pipeline.extract_with_scoring(text, source=source_name)
             else:
                 result_obj = pipeline.extract(text, source=source_name)
             
@@ -321,6 +337,64 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str,
                     total_medium = confidence_dist.get('medium', 0)
                     total_low = confidence_dist.get('low', 0)
                     logger.info(f"Fallacy confidence: {total_high} high, {total_medium} medium, {total_low} low")
+        
+        # Log scoring info if available
+        if result.get('scoring_enabled'):
+            scoring_meta = result.get('meta', {})
+            scoring_result = result.get('scoring_result', {})
+            
+            if scoring_meta.get('scoring_performed'):
+                processing_time = scoring_meta.get('scoring_time_seconds', 0)
+                logger.info(f"Scoring analysis completed in {processing_time:.3f}s")
+                
+                # Extract scoring data
+                debate_score = scoring_result.get('debate_score', {})
+                summary = scoring_result.get('summary', {})
+                
+                if debate_score:
+                    overall_score = debate_score.get('overall_score', 0)
+                    overall_rating = summary.get('overall_rating', 'unknown')
+                    logger.info(f"Overall Debate Score: {overall_score:.3f} ({overall_rating})")
+                    
+                    # Show dimension scores
+                    dimensions = [
+                        ('Information Quality', 'information_quality'),
+                        ('Logical Consistency', 'logical_consistency'),
+                        ('Factual Accuracy', 'factual_accuracy'),
+                        ('Engagement Quality', 'engagement_quality')
+                    ]
+                    
+                    for name, key in dimensions:
+                        value = debate_score.get(key, 0)
+                        logger.info(f"  {name}: {value:.3f}")
+                    
+                    # Show speaker performance
+                    speaker_scores = debate_score.get('speaker_scores', {})
+                    if speaker_scores:
+                        logger.info(f"Speaker Performance:")
+                        for speaker, scores in speaker_scores.items():
+                            credibility = scores.get('credibility_score', 0)
+                            claims = scores.get('total_claims', 0)
+                            logger.info(f"  {speaker}: {credibility:.3f} credibility ({claims} claims)")
+                    
+                    # Show argument analysis
+                    argument_scores = debate_score.get('argument_scores', [])
+                    if argument_scores:
+                        avg_strength = sum(arg.get('strength_score', 0) for arg in argument_scores) / len(argument_scores)
+                        logger.info(f"Argument Analysis: {len(argument_scores)} arguments, avg strength {avg_strength:.3f}")
+                    
+                    # Show summary insights
+                    strengths = summary.get('strengths', [])
+                    weaknesses = summary.get('weaknesses', [])
+                    
+                    if strengths:
+                        logger.info(f"Key Strengths: {', '.join(strengths[:3])}")
+                    if weaknesses:
+                        logger.info(f"Key Weaknesses: {', '.join(weaknesses[:3])}")
+                        
+            elif scoring_meta.get('scoring_attempted'):
+                error_msg = scoring_meta.get('scoring_error', 'Unknown error')
+                logger.warning(f"Scoring failed: {error_msg}")
                 
     except KeyboardInterrupt:
         logger.info("Processing interrupted by user")

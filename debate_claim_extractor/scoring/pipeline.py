@@ -52,7 +52,7 @@ class ScoringPipeline:
             # Get fact-checking results if available
             fact_results = []
             if hasattr(extraction_result, 'fact_check_results') and extraction_result.fact_check_results:
-                fact_results = extraction_result.fact_check_results
+                fact_results = self._convert_fact_results(extraction_result.fact_check_results)
                 logger.info(f"Found {len(fact_results)} fact-check results")
             
             # Get fallacy results if available
@@ -288,6 +288,34 @@ class ScoringPipeline:
                 recommendations.append(f"Speaker(s) {', '.join(low_performing_speakers)} should focus on accuracy and evidence")
         
         return recommendations
+    
+    def _convert_fact_results(self, fact_results: list) -> list:
+        """
+        Convert fact-check results from dictionaries to FactCheckResult objects.
+        
+        This handles compatibility between serialized results and objects.
+        """
+        from ..fact_checking.fact_models import FactCheckResult, VerificationStatus
+        
+        converted_results = []
+        for result in fact_results:
+            if isinstance(result, dict):
+                # Create a simple fact-check result with the overall status
+                converted_result = FactCheckResult(
+                    claim_id=result.get('claim_id', ''),
+                    service_name='aggregated',
+                    query=result.get('claim_text', ''),
+                    claim_text=result.get('claim_text', ''),
+                    status=VerificationStatus(result.get('overall_status', 'unverified')),
+                    confidence=result.get('confidence', 0.5),
+                    verification_score=result.get('overall_score', 0.5)
+                )
+                converted_results.append(converted_result)
+            else:
+                # Assume it's already a FactCheckResult object
+                converted_results.append(result)
+        
+        return converted_results
 
 
 def add_scoring_to_extraction_result(extraction_result: ExtractionResult,

@@ -64,6 +64,10 @@ class ExtractionResult(BaseModel):
     fallacies: Optional[List[Dict[str, Any]]] = Field(default=None, description="Detected logical fallacies")
     fallacy_summary: Optional[Dict[str, Any]] = Field(default=None, description="Fallacy detection summary statistics")
     
+    # Scoring data (optional)
+    scoring_enabled: bool = Field(default=False, description="Whether scoring was performed")
+    scoring_result: Optional[Dict[str, Any]] = Field(default=None, description="Multi-dimensional scoring results")
+    
     def model_post_init(self, __context) -> None:
         """Add metadata after initialization"""
         if not self.meta:

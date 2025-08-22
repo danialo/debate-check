@@ -334,6 +334,204 @@ class YouTubePipeline(ClaimExtractionPipeline):
         
         return result
     
+    def extract_with_scoring(self, text: str, source: str = "unknown") -> Dict[str, Any]:
+        """
+        Enhanced extraction with scoring for YouTube-style transcripts
+        
+        Args:
+            text: Raw transcript text
+            source: Source identifier
+            
+        Returns:
+            Enhanced results with scoring data
+        """
+        # First extract normally
+        result = self.extract(text, source)
+        
+        if "error" in result:
+            return result
+        
+        # Run scoring on the result
+        return self._run_scoring_on_youtube_result(result, source)
+    
+    def extract_with_fact_checking_and_scoring(self, 
+                                              text: str, 
+                                              source: str = "unknown",
+                                              fact_config: Optional[Any] = None) -> Dict[str, Any]:
+        """
+        Enhanced extraction with fact-checking and scoring for YouTube-style transcripts
+        
+        Args:
+            text: Raw transcript text
+            source: Source identifier
+            fact_config: Fact-checking configuration
+            
+        Returns:
+            Enhanced results with fact-checking and scoring data
+        """
+        # First run fact-checking
+        result = self.extract_with_fact_checking(text, source, fact_config)
+        
+        if "error" in result:
+            return result
+        
+        # Run scoring on the result
+        return self._run_scoring_on_youtube_result(result, source)
+    
+    def extract_with_fallacy_detection_and_scoring(self, text: str, source: str = "unknown") -> Dict[str, Any]:
+        """
+        Enhanced extraction with fallacy detection and scoring for YouTube-style transcripts
+        
+        Args:
+            text: Raw transcript text
+            source: Source identifier
+            
+        Returns:
+            Enhanced results with fallacy detection and scoring data
+        """
+        # First run fallacy detection
+        result = self.extract_with_fallacy_detection(text, source)
+        
+        if "error" in result:
+            return result
+        
+        # Run scoring on the result
+        return self._run_scoring_on_youtube_result(result, source)
+    
+    def extract_with_comprehensive_analysis(self, 
+                                          text: str, 
+                                          source: str = "unknown",
+                                          fact_config: Optional[Any] = None) -> Dict[str, Any]:
+        """
+        Enhanced extraction with fact-checking, fallacy detection, and scoring for YouTube-style transcripts
+        
+        Args:
+            text: Raw transcript text
+            source: Source identifier
+            fact_config: Fact-checking configuration
+            
+        Returns:
+            Enhanced results with fact-checking, fallacy detection, and scoring data
+        """
+        # First run complete analysis (fact-checking + fallacy detection)
+        result = self.extract_with_all_analysis(text, source, fact_config)
+        
+        if "error" in result:
+            return result
+        
+        # Run scoring on the result
+        return self._run_scoring_on_youtube_result(result, source)
+    
+    def _run_scoring_on_youtube_result(self, youtube_result: Dict[str, Any], source: str) -> Dict[str, Any]:
+        """
+        Run scoring on a YouTube pipeline result dict and return enhanced result.
+        
+        This method converts the YouTube dict result to ExtractionResult format,
+        runs scoring, and converts back to dict format with scoring data.
+        """
+        try:
+            logger.info(f"Starting scoring for YouTube result with {len(youtube_result.get('claims', []))} claims")
+            
+            # Convert YouTube dict result to ExtractionResult format for scoring
+            extraction_result = self._youtube_result_to_extraction_result(youtube_result)
+            
+            if not extraction_result.claims:
+                logger.info("No claims to score in YouTube result")
+                return youtube_result
+            
+            # Initialize scoring pipeline if needed
+            from ..scoring.pipeline import ScoringPipeline
+            scoring_pipeline = ScoringPipeline()
+            
+            # Run scoring on the extraction result
+            scoring_result = scoring_pipeline.score_extraction_result(extraction_result, source=source)
+            
+            # Add scoring data to YouTube result
+            youtube_result["scoring_enabled"] = True
+            youtube_result["scoring_result"] = scoring_result.model_dump()
+            
+            # Update metadata
+            if "meta" not in youtube_result:
+                youtube_result["meta"] = {}
+            
+            youtube_result["meta"].update({
+                "scoring_performed": scoring_result.scoring_performed,
+                "scoring_time_seconds": scoring_result.processing_time_seconds
+            })
+            
+            if scoring_result.scoring_error:
+                youtube_result["meta"]["scoring_error"] = scoring_result.scoring_error
+                logger.warning(f"YouTube scoring completed with error: {scoring_result.scoring_error}")
+            else:
+                logger.info(f"YouTube scoring complete: {scoring_result.debate_score.overall_score:.3f} overall score")
+            
+        except Exception as e:
+            logger.error(f"YouTube scoring failed: {e}")
+            logger.exception("YouTube scoring traceback:")
+            
+            # Update result to indicate scoring failed
+            if "meta" not in youtube_result:
+                youtube_result["meta"] = {}
+            
+            youtube_result["meta"].update({
+                "scoring_attempted": True,
+                "scoring_error": str(e)
+            })
+        
+        return youtube_result
+    
+    def _youtube_result_to_extraction_result(self, youtube_result: Dict[str, Any]) -> 'ExtractionResult':
+        """
+        Convert YouTube pipeline dict result to ExtractionResult object for scoring compatibility.
+        """
+        from .models import Claim, ClaimType, ExtractionResult
+        from datetime import datetime
+        
+        # Convert claims from dict format to Claim objects
+        claims = []
+        for claim_data in youtube_result.get("claims", []):
+            if isinstance(claim_data, dict):
+                claim = Claim(
+                    id=claim_data["id"],
+                    type=ClaimType(claim_data["type"]),
+                    text=claim_data["text"],
+                    speaker=claim_data["speaker"],
+                    sentence_id=claim_data["sentence_id"],
+                    turn_id=claim_data["turn_id"],
+                    char_start=claim_data["char_start"],
+                    char_end=claim_data["char_end"],
+                    context=claim_data.get("context"),
+                    confidence=claim_data["confidence"],
+                    timestamp=claim_data.get("timestamp")
+                )
+                # Preserve fallacy data if present
+                if "fallacies" in claim_data:
+                    claim.fallacies = claim_data["fallacies"]
+                if "fallacy_score" in claim_data:
+                    claim.fallacy_score = claim_data["fallacy_score"]
+                
+                claims.append(claim)
+        
+        # Create ExtractionResult object
+        result = ExtractionResult(
+            claims=claims,
+            meta=youtube_result.get("meta", {}),
+            fallacy_detection_enabled=youtube_result.get("fallacy_detection_enabled", False),
+            fact_checking_enabled=youtube_result.get("fact_checking_enabled", False),
+            scoring_enabled=False  # Will be set by scoring
+        )
+        
+        # Set optional fields if present
+        if "fallacies" in youtube_result:
+            result.fallacies = youtube_result["fallacies"]
+        if "fallacy_summary" in youtube_result:
+            result.fallacy_summary = youtube_result["fallacy_summary"]
+        if "fact_check_results" in youtube_result:
+            result.fact_check_results = youtube_result["fact_check_results"]
+        
+        return result
+    
+    
     def _process_long_transcript_with_fallacies(self, text: str, source: str) -> Dict[str, Any]:
         """Process long YouTube transcript with chunking, clustering, and fallacy detection"""
         
