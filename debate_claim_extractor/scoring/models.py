@@ -27,20 +27,20 @@ class ScoringConfig(BaseModel):
     argument_strength_enabled: bool = True
     overall_debate_enabled: bool = True
     
-    # Scoring weights and parameters
-    claim_confidence_weight: float = 0.3
-    fact_check_weight: float = 0.4
-    fallacy_penalty_weight: float = 0.3
+    # Scoring weights and parameters (must be non-negative and not exceed 1.0)
+    claim_confidence_weight: float = Field(default=0.3, ge=0.0, le=1.0)
+    fact_check_weight: float = Field(default=0.4, ge=0.0, le=1.0)
+    fallacy_penalty_weight: float = Field(default=0.3, ge=0.0, le=1.0)
     
-    # Thresholds
-    high_confidence_threshold: float = 0.7
-    medium_confidence_threshold: float = 0.5
-    severe_fallacy_threshold: float = 0.8
+    # Thresholds (must be between 0.0 and 1.0)
+    high_confidence_threshold: float = Field(default=0.7, ge=0.0, le=1.0)
+    medium_confidence_threshold: float = Field(default=0.5, ge=0.0, le=1.0)
+    severe_fallacy_threshold: float = Field(default=0.8, ge=0.0, le=1.0)
     
-    # Penalties
-    fallacy_penalty_multiplier: float = 0.2
-    unverified_claim_penalty: float = 0.1
-    false_claim_penalty: float = 0.3
+    # Penalties (must be non-negative and not exceed 1.0)
+    fallacy_penalty_multiplier: float = Field(default=0.2, ge=0.0, le=1.0)
+    unverified_claim_penalty: float = Field(default=0.1, ge=0.0, le=1.0)
+    false_claim_penalty: float = Field(default=0.3, ge=0.0, le=1.0)
 
 
 @dataclass
