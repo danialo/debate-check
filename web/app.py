@@ -13,7 +13,10 @@ from pathlib import Path
 
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 import sys
-sys.path.append(str(Path(__file__).parent.parent))
+
+# Add project root to Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from debate_claim_extractor.pipeline.pipeline import ClaimExtractionPipeline
 from debate_claim_extractor.pipeline.youtube_pipeline import YouTubePipeline
