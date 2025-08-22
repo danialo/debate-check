@@ -1,6 +1,6 @@
 # Debate Check - Claims Extraction Pipeline
 
-A text analysis tool for extracting factual claims from debate transcripts. This tool forms the foundation for a comprehensive debate analysis platform that will eventually include fact-checking, logical fallacy detection, and multi-dimensional scoring.
+A text analysis tool for extracting factual claims from debate transcripts. This tool forms the foundation for a comprehensive debate analysis platform that includes fact-checking, logical fallacy detection, and multi-dimensional scoring.
 
 ## 🚀 Quick Start
 
@@ -135,7 +135,7 @@ This enables fact-checking using the built-in local database, which includes:
 
 ### Example 4c: 🔥 **NEW**: Fact-Checking with Google API
 ```bash
-# Set your Google Fact Check Tools API key
+# Set the Google Fact Check Tools API key
 export GOOGLE_FACT_CHECK_API_KEY="your-api-key-here"
 
 # Run with both Google API and local database
@@ -405,14 +405,14 @@ python -m spacy download en_core_web_sm
 ```
 
 **Issue: No claims detected**
-- Check that your input has clear speaker labels (`SPEAKER:`)
+- Check that the input has clear speaker labels (`SPEAKER:`)
 - Try with `--verbose` to see processing details
 - Ensure sentences contain factual assertions, not just questions
 
 ### Checking Processing Details
 Use verbose mode to understand what's happening:
 ```bash
-python -m debate_claim_extractor --input your_file.txt --verbose
+python -m debate_claim_extractor --input file.txt --verbose
 ```
 
 ## 💡 Pro Tips
@@ -468,9 +468,32 @@ python -m debate_claim_extractor --input your_file.txt --verbose
 - [x] **Fact-checking integration** - Multi-service verification with Wikipedia, Google API, and local database
 - [x] **Logical fallacy detection** - 5 core fallacy types with pattern recognition and confidence scoring
 - [x] **Full analysis mode** - Combined fact-checking and fallacy detection pipeline
+- [x] **Multi-dimensional scoring** - Complex analytical scoring engine with weighted algorithms
+
+### 🚧 In Progress
+- [ ] **Presentation layer system** - Multiple view modes for different audiences
+  - [ ] Simple count-based summaries (TikTok-style interface)
+  - [ ] Academic detailed breakdowns
+  - [ ] Speaker comparison views
+  - [ ] Customizable filtering and reporting
+- [ ] **Enhanced fallacy detection** - Expand to 10+ fallacy types to match popular interfaces
 
 ### 🎯 Planned
-- [ ] **Multi-dimensional scoring** - Your comprehensive debate scoring system
+- [ ] **Scoring view modes** - Switchable presentation formats
+  - [ ] Social media friendly summaries
+  - [ ] Research-grade detailed analysis  
+  - [ ] Educational progressive complexity
+  - [ ] Journalist report formats
+- [ ] **Advanced filtering system** - Custom analysis focus
+  - [ ] Filter by confidence thresholds
+  - [ ] Focus on specific fallacy types
+  - [ ] Claim type filtering
+  - [ ] Speaker-specific analysis
+- [ ] **Export and sharing** - Multiple output formats
+  - [ ] Infographic generation
+  - [ ] Social media cards
+  - [ ] Academic citation format
+  - [ ] CSV/Excel data export
 - [ ] **Audio processing** - Direct YouTube URL to claims pipeline
-- [ ] **Web interface** - User-friendly GUI for transcript upload/analysis
+- [ ] **Web interface** - User-friendly GUI with view mode selection
 - [ ] **Real-time analysis** - Live debate scoring and visualization

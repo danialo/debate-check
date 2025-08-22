@@ -111,9 +111,19 @@ def _should_use_youtube_pipeline(text: str) -> bool:
     is_flag=True,
     help="Enable both fact-checking and fallacy detection (equivalent to --fact-check --fallacy-detection)"
 )
+@click.option(
+    "--scoring", "-s",
+    is_flag=True,
+    help="Enable multi-dimensional debate scoring (requires claim extraction)"
+)
+@click.option(
+    "--comprehensive-analysis", "-ca",
+    is_flag=True,
+    help="Enable all analysis features: fact-checking, fallacy detection, and scoring"
+)
 def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str, 
          fact_check: bool, google_api_key: str, fact_db_path: str, fact_timeout: int,
-         fallacy_detection: bool, full_analysis: bool):
+         fallacy_detection: bool, full_analysis: bool, scoring: bool, comprehensive_analysis: bool):
     """
     Extract factual claims from debate transcripts.
     
@@ -134,7 +144,14 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str,
             
         logger.info(f"Processing {len(text)} characters of input text")
         
-        # Handle full analysis flag
+        # Handle comprehensive analysis flag (all features)
+        if comprehensive_analysis:
+            fact_check = True
+            fallacy_detection = True
+            scoring = True
+            logger.info("Comprehensive analysis enabled: fact-checking + fallacy detection + scoring")
+        
+        # Handle full analysis flag (fact-checking + fallacy detection)
         if full_analysis:
             fact_check = True
             fallacy_detection = True
@@ -143,6 +160,8 @@ def main(input: TextIO, output: TextIO, format: str, verbose: bool, config: str,
         # Log analysis options
         if fallacy_detection:
             logger.info("Fallacy detection enabled")
+        if scoring:
+            logger.info("Multi-dimensional scoring enabled")
         
         # Configure fact-checking if enabled
         fact_config = None

@@ -56,6 +56,7 @@ class VerificationSource(BaseModel):
 class FactCheckResult(BaseModel):
     """Result from a single fact-checking service"""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    claim_id: Optional[str] = Field(None, description="ID of the claim being verified")
     service_name: str = Field(description="Name of the fact-checking service")
     query: str = Field(description="Query text sent to the service")
     claim_text: str = Field(description="Original claim text being verified")
