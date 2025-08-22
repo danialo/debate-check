@@ -220,6 +220,99 @@ For long transcripts (>2000 characters), the system automatically:
 }
 ```
 
+### Example 8: 🎯 **NEW**: Multi-Dimensional Scoring System
+```bash
+# Enable scoring for comprehensive debate quality analysis
+python -m debate_claim_extractor --input sample_transcript.txt --enable-scoring --verbose
+
+# Or use comprehensive analysis (includes all features + scoring)
+python -m debate_claim_extractor --input sample_transcript.txt --comprehensive-analysis --verbose
+```
+
+The scoring system provides advanced analytical metrics across four dimensions:
+
+#### 🧠 **Core Scoring Metrics**
+- **Information Quality** (0.0-1.0): Combines claim confidence with fact-checking verification boosts
+- **Logical Consistency** (0.0-1.0): Inverse relationship to fallacy frequency, weighted by severity
+- **Factual Accuracy** (0.0-1.0): Weighted average of verification results from multiple sources
+- **Engagement Quality** (0.0-1.0): Measures diversity, speaker balance, and complexity minus fallacy penalties
+
+#### 👥 **Speaker Performance Analysis**
+- **Individual credibility scores** for each debate participant
+- **Claim accuracy tracking** based on fact-checking results
+- **Fallacy penalty calculation** weighted by severity (High/Medium/Low)
+- **Performance distributions** across claim types and verification statuses
+
+#### ⚖️ **Argument Strength Evaluation**
+- **Evidence scoring** based on fact-checking verification strength
+- **Logic scoring** (inverse fallacy penalty with severity weighting)
+- **Relevance scoring** based on claim type and confidence characteristics
+- **Clarity scoring** optimized for claim length and structural complexity
+
+**Sample Scoring Output:**
+```json
+{
+  "scoring_result": {
+    "debate_score": {
+      "overall_score": 0.649,
+      "information_quality": 0.750,
+      "logical_consistency": 0.841,
+      "factual_accuracy": 0.513,
+      "engagement_quality": 0.426,
+      "total_claims": 4,
+      "verified_claims": 1,
+      "false_claims": 1,
+      "total_fallacies": 2,
+      "speaker_scores": {
+        "CANDIDATE_A": {
+          "credibility_score": 0.431,
+          "total_claims": 2,
+          "claim_accuracy": 0.500,
+          "fallacies_committed": 1,
+          "fallacy_penalty": 0.105
+        }
+      },
+      "argument_scores": [
+        {
+          "strength_score": 0.742,
+          "evidence_score": 0.580,
+          "logic_score": 1.000,
+          "relevance_score": 0.765,
+          "clarity_score": 0.850
+        }
+      ]
+    },
+    "summary": {
+      "overall_score": 0.649,
+      "overall_rating": "fair",
+      "strengths": [
+        "High information quality",
+        "Strong logical consistency",
+        "Many high-confidence claims"
+      ],
+      "weaknesses": [
+        "High fallacy rate",
+        "Significant false claims"
+      ],
+      "recommendations": [
+        "Verify claims against reliable sources",
+        "Improve debate structure and participant engagement",
+        "Focus on accuracy and evidence"
+      ]
+    },
+    "processing_time_seconds": 0.001,
+    "scoring_performed": true
+  }
+}
+```
+
+#### 📊 **Scoring Interpretation Guide**
+- **0.85-1.00**: Excellent - Outstanding debate quality with strong evidence and logic
+- **0.70-0.84**: Good - Solid performance with minor areas for improvement
+- **0.55-0.69**: Fair - Adequate debate with noticeable strengths and weaknesses
+- **0.40-0.54**: Poor - Significant issues in evidence, logic, or engagement
+- **0.00-0.39**: Very Poor - Major problems requiring comprehensive improvement
+
 ## 📊 Understanding the Output
 
 ### Basic JSON Structure
