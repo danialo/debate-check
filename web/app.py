@@ -19,6 +19,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from debate_claim_extractor.pipeline.pipeline import ClaimExtractionPipeline
+from debate_claim_extractor.pipeline.enhanced_pipeline import EnhancedClaimExtractionPipeline
 from debate_claim_extractor.pipeline.youtube_pipeline import YouTubePipeline
 from debate_claim_extractor.fact_checking import FactCheckConfig
 
@@ -57,31 +58,35 @@ def should_use_youtube_pipeline(text: str) -> bool:
     speaker_ratio = speaker_pattern_lines / len(non_empty_lines[:10])
     return speaker_ratio < 0.3
 
-def run_comprehensive_analysis(text: str, analysis_id: str) -> dict:
+import asyncio
+
+async def run_comprehensive_analysis_async(text: str, analysis_id: str) -> dict:
     """Run comprehensive analysis on transcript text"""
     try:
         logger.info(f"Starting analysis {analysis_id} for {len(text)} characters")
         
-        # Configure fact-checking (local database only for now)
+        # Configure fact-checking (disabled for web to avoid asyncio conflicts)
+        # TODO: Fix asyncio.run() conflicts in enhanced pipeline  
         fact_config = FactCheckConfig(
-            enabled=True,
+            enabled=False,  # Temporarily disabled due to asyncio conflicts
             timeout_seconds=10,
             google_fact_check={'enabled': False, 'api_key': None},
-            local_database={'enabled': True, 'database_path': 'data/fact_checks.db'}
+            local_database={'enabled': False, 'database_path': None}
         )
         
         # Choose appropriate pipeline
         if should_use_youtube_pipeline(text):
             logger.info("Using YouTube-enhanced pipeline")
             pipeline = YouTubePipeline()
-            result_data = pipeline.extract_with_comprehensive_analysis(
+            result_data = await pipeline.extract_with_comprehensive_analysis(
                 text, 
                 source=f"web_analysis_{analysis_id}",
                 fact_config=fact_config
             )
         else:
-            logger.info("Using standard pipeline")
-            pipeline = ClaimExtractionPipeline()
+            logger.info("Using enhanced pipeline with intelligent filtering")
+            pipeline = EnhancedClaimExtractionPipeline(enable_filtering=True)
+            # Enhanced pipeline is synchronous
             result_obj = pipeline.extract_with_comprehensive_analysis(
                 text, 
                 source=f"web_analysis_{analysis_id}",
@@ -157,10 +162,26 @@ def get_recent_analyses(limit: int = 10) -> list:
     analyses.sort(key=lambda x: x['timestamp'], reverse=True)
     return analyses[:limit]
 
+@app.route('/debug')
+def debug():
+    """Simple debug endpoint"""
+    return {
+        'status': 'working',
+        'message': 'Flask is running correctly',
+        'data_dir': str(DATA_DIR),
+        'project_root': str(project_root)
+    }
+
 @app.route('/')
 def home():
     """Home page with transcript input form"""
-    recent_analyses = get_recent_analyses()
+    try:
+        recent_analyses = get_recent_analyses()
+        logger.info(f"Found {len(recent_analyses)} recent analyses")
+    except Exception as e:
+        logger.error(f"Error getting recent analyses: {e}")
+        recent_analyses = []  # Fallback to empty list
+    
     return render_template('home.html', recent_analyses=recent_analyses)
 
 @app.route('/analyze', methods=['POST'])
@@ -180,7 +201,12 @@ def analyze():
     analysis_id = str(uuid.uuid4())[:8]
     
     # Run comprehensive analysis
-    analysis_result = run_comprehensive_analysis(text, analysis_id)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        analysis_result = loop.run_until_complete(run_comprehensive_analysis_async(text, analysis_id))
+    finally:
+        loop.close()
     
     # Save result to local storage
     save_analysis_result(analysis_id, text, analysis_result)
@@ -224,4 +250,4 @@ def recent_analyses():
 if __name__ == '__main__':
     print("Starting Debate Analysis Web Interface...")
     print(f"Data storage: {DATA_DIR}")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=8080)

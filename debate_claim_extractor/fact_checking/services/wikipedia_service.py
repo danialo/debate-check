@@ -4,6 +4,7 @@ Wikipedia-based fact-checking service implementation.
 import asyncio
 import aiohttp
 import logging
+import time
 from typing import Optional, List, Dict, Any
 from urllib.parse import quote
 import re
@@ -42,12 +43,14 @@ class WikipediaFactCheckService(FactCheckService):
             FactCheckResult with verification details
         """
         try:
-            logger.debug(f"Verifying with Wikipedia: {claim_text[:50]}...")
+            logger.debug(f"Wikipedia verifying: {claim_text[:100]}...")
+            start_time = time.time()
             
             # Extract key entities/topics from the claim
             search_terms = self._extract_search_terms(claim_text)
             
             if not search_terms:
+                logger.debug(f"No searchable terms found for claim: {claim_text[:50]}...")
                 return FactCheckResult(
                     service_name=self.name,
                     query=claim_text,
@@ -59,10 +62,13 @@ class WikipediaFactCheckService(FactCheckService):
                     explanation="No searchable terms found in claim"
                 )
             
+            logger.debug(f"Wikipedia search terms: {search_terms}")
+            
             # Search Wikipedia for relevant articles
             articles = await self._search_wikipedia(search_terms)
             
             if not articles:
+                logger.debug(f"No Wikipedia articles found for terms: {search_terms}")
                 return FactCheckResult(
                     service_name=self.name,
                     query=' '.join(search_terms),
@@ -74,8 +80,13 @@ class WikipediaFactCheckService(FactCheckService):
                     explanation="No relevant Wikipedia articles found"
                 )
             
+            logger.debug(f"Found {len(articles)} Wikipedia articles for analysis")
+            
             # Get content from top articles and analyze
             verification_result = await self._analyze_articles(claim_text, articles)
+            
+            elapsed = time.time() - start_time
+            logger.debug(f"Wikipedia verification completed in {elapsed:.2f}s for: {claim_text[:50]}...")
             
             return verification_result
             
@@ -93,7 +104,7 @@ class WikipediaFactCheckService(FactCheckService):
             )
         
         except Exception as e:
-            logger.error(f"Wikipedia verification error: {e}")
+            logger.error(f"Wikipedia verification error for '{claim_text[:50]}...': {e}")
             return FactCheckResult(
                 service_name=self.name,
                 query=claim_text,

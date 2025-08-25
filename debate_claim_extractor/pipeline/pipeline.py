@@ -12,6 +12,7 @@ from .preprocessor import DebatePreprocessor
 from .segmenter import DebateSegmenter
 from .claim_detector import DebateClaimDetector
 from .postprocessor import ClaimPostprocessor
+from .enhanced_postprocessor import EnhancedClaimPostprocessor
 from ..fact_checking import FactVerificationPipeline, FactCheckConfig
 from ..fallacy_detection import DebateFallacyDetector, FallacyDetectionSummary
 from ..scoring import ScoringPipeline

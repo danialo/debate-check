@@ -7,6 +7,7 @@ from typing import List, Dict, Set
 from collections import defaultdict
 
 from .models import Claim, Sentence, ClaimType
+from .claim_filters import ImprovedClaimFilteringSystem
 
 logger = logging.getLogger(__name__)
 

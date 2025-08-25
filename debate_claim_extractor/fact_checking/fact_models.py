@@ -118,6 +118,7 @@ class AggregatedVerification(BaseModel):
     
     # Summary
     summary: Optional[str] = Field(None, description="Summary of verification findings")
+    friendly_explanation: Optional[str] = Field(None, description="User-friendly explanation in simple terms")
     primary_sources: List[VerificationSource] = Field(
         default_factory=list,
         description="Most credible sources for this verification"

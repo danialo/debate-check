@@ -14,9 +14,8 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-# Change to web directory
+# Set web directory path but don't change working directory
 web_dir = project_root / 'web'
-os.chdir(web_dir)
 
 def find_available_port(start_port=8080, max_port=8100):
     """Find an available port starting from start_port"""
@@ -46,7 +45,12 @@ if __name__ == '__main__':
         print("=" * 60)
         print()
         
-        app.run(debug=True, host='127.0.0.1', port=port)
+        # Set environment variables for Flask
+        os.environ['FLASK_APP'] = 'web.app:app'
+        os.environ['FLASK_ENV'] = 'development'
+        
+        # Run with reloader disabled to avoid path issues
+        app.run(debug=True, host='127.0.0.1', port=port, use_reloader=False)
         
     except KeyboardInterrupt:
         print("\n👋 Web interface stopped.")

@@ -11,6 +11,7 @@ from .pipeline import ClaimExtractionPipeline
 from .transcript_chunker import SmartTranscriptChunker, TranscriptChunk
 from .claim_clusterer import ClaimClusterer, ClaimCluster
 from .models import ExtractionResult, Claim
+from .enhanced_postprocessor import EnhancedClaimPostprocessor
 from ..fallacy_detection import DebateFallacyDetector, FallacyDetectionSummary
 
 logger = logging.getLogger(__name__)
@@ -25,11 +26,14 @@ class YouTubePipeline(ClaimExtractionPipeline):
         """Initialize the YouTube-optimized pipeline"""
         super().__init__(config_path)
         
+        # Override with enhanced postprocessor for filtering
+        self.postprocessor = EnhancedClaimPostprocessor(enable_filtering=True)
+        
         # Add YouTube-specific components
         self.chunker = SmartTranscriptChunker()
         self.clusterer = ClaimClusterer(similarity_threshold=0.4)  # Lower threshold for YouTube
         
-        logger.info("Initialized YouTube-optimized pipeline")
+        logger.info("Initialized YouTube-optimized pipeline with enhanced postprocessor")
     
     def extract(self, text: str, source: str = "unknown") -> Dict[str, Any]:
         """
@@ -62,7 +66,7 @@ class YouTubePipeline(ClaimExtractionPipeline):
                 "source": source
             }
     
-    def extract_with_fact_checking(self, 
+    async def extract_with_fact_checking(self, 
                                   text: str, 
                                   source: str = "unknown",
                                   fact_config: Optional[Any] = None) -> Dict[str, Any]:
@@ -115,8 +119,7 @@ class YouTubePipeline(ClaimExtractionPipeline):
             logger.info(f"Starting fact-checking for {len(claim_objects)} claims in YouTube pipeline")
             
             # Run fact-checking using parent pipeline infrastructure
-            import asyncio
-            fact_results = asyncio.run(self._run_fact_checking(claim_objects, fact_config))
+            fact_results = await self._run_fact_checking(claim_objects, fact_config)
             
             # Add fact-checking data to result
             result["fact_checking_enabled"] = True
@@ -242,7 +245,7 @@ class YouTubePipeline(ClaimExtractionPipeline):
                 "source": source
             }
     
-    def extract_with_all_analysis(self, 
+    async def extract_with_all_analysis(self, 
                                 text: str, 
                                 source: str = "unknown",
                                 fact_config: Optional[Any] = None) -> Dict[str, Any]:
@@ -294,9 +297,8 @@ class YouTubePipeline(ClaimExtractionPipeline):
         try:
             logger.info(f"Starting fact-checking for {len(claim_objects)} claims in YouTube pipeline")
             
-            # Run fact-checking using parent pipeline infrastructure
-            import asyncio
-            fact_results = asyncio.run(self._run_fact_checking(claim_objects, fact_config))
+            # Run fact-checking using parent pipeline infrastructure  
+            fact_results = await self._run_fact_checking(claim_objects, fact_config)
             
             # Add fact-checking data to result
             result["fact_checking_enabled"] = True
@@ -354,7 +356,7 @@ class YouTubePipeline(ClaimExtractionPipeline):
         # Run scoring on the result
         return self._run_scoring_on_youtube_result(result, source)
     
-    def extract_with_fact_checking_and_scoring(self, 
+    async def extract_with_fact_checking_and_scoring(self, 
                                               text: str, 
                                               source: str = "unknown",
                                               fact_config: Optional[Any] = None) -> Dict[str, Any]:
@@ -370,7 +372,7 @@ class YouTubePipeline(ClaimExtractionPipeline):
             Enhanced results with fact-checking and scoring data
         """
         # First run fact-checking
-        result = self.extract_with_fact_checking(text, source, fact_config)
+        result = await self.extract_with_fact_checking(text, source, fact_config)
         
         if "error" in result:
             return result
@@ -398,7 +400,7 @@ class YouTubePipeline(ClaimExtractionPipeline):
         # Run scoring on the result
         return self._run_scoring_on_youtube_result(result, source)
     
-    def extract_with_comprehensive_analysis(self, 
+    async def extract_with_comprehensive_analysis(self, 
                                           text: str, 
                                           source: str = "unknown",
                                           fact_config: Optional[Any] = None) -> Dict[str, Any]:
@@ -414,13 +416,29 @@ class YouTubePipeline(ClaimExtractionPipeline):
             Enhanced results with fact-checking, fallacy detection, and scoring data
         """
         # First run complete analysis (fact-checking + fallacy detection)
-        result = self.extract_with_all_analysis(text, source, fact_config)
+        result = await self.extract_with_all_analysis(text, source, fact_config)
         
         if "error" in result:
             return result
         
         # Run scoring on the result
         return self._run_scoring_on_youtube_result(result, source)
+    
+    async def _run_fact_checking(self, claims, fact_config):
+        """Run enhanced fact-checking with better explanations for YouTube pipeline"""
+        # Import the enhanced fact-checking pipeline
+        from ..fact_checking.fact_pipeline import FactVerificationPipeline
+        
+        # Initialize enhanced fact-checking pipeline
+        enhanced_pipeline = FactVerificationPipeline(fact_config)
+        
+        try:
+            # Verify all claims with enhanced explanations
+            fact_results = await enhanced_pipeline.verify_claims(claims)
+            return fact_results
+        finally:
+            # Clean up
+            await enhanced_pipeline.close()
     
     def _run_scoring_on_youtube_result(self, youtube_result: Dict[str, Any], source: str) -> Dict[str, Any]:
         """

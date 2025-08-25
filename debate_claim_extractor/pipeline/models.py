@@ -17,6 +17,7 @@ class ClaimType(str, Enum):
     CAUSAL = "causal"
     COMPARATIVE = "comparative"
     HISTORICAL = "historical"
+    NORMATIVE = "normative"  # Philosophical, moral, value-based claims
 
 
 class Sentence(BaseModel):
@@ -44,6 +45,10 @@ class Claim(BaseModel):
     context: Optional[str] = None  # Surrounding sentences for context
     confidence: float = Field(default=0.5, ge=0.0, le=1.0)
     timestamp: Optional[str] = None
+    
+    # Claim classification metadata (added by filtering system)
+    should_fact_check: Optional[bool] = Field(default=None, description="Whether this claim should be fact-checked")
+    classification_reason: Optional[str] = Field(default=None, description="Reason for claim classification")
     
     # Fallacy detection integration (optional)
     fallacies: Optional[List[Dict[str, Any]]] = Field(default=None, description="Detected logical fallacies in this claim")

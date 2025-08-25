@@ -45,6 +45,14 @@
 
 <!-- Scoring Summary -->
 {% if result.result.scoring_enabled and result.result.scoring_result %}
+{% if result.result.scoring_result.scoring_error %}
+<div class="card">
+    <h2>Debate Score</h2>
+    <div class="alert alert-warning">
+        <strong>Scoring temporarily unavailable:</strong> There was a technical issue with the scoring system. All other analysis features are working normally.
+    </div>
+</div>
+{% elif result.result.scoring_result.debate_score %}
 {% set scoring = result.result.scoring_result %}
 <div class="card">
     <h2>Debate Score</h2>
@@ -111,6 +119,7 @@
     </div>
     {% endif %}
 </div>
+{% endif %}
 {% endif %}
 
 <!-- Speaker Performance -->

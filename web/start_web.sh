@@ -4,10 +4,18 @@ echo "🎯 Debate Analysis Web Interface Startup"
 echo "========================================"
 
 cd "$(dirname "$0")"
-PROJECT_ROOT="$(pwd)"
-WEB_DIR="$PROJECT_ROOT/web"
+WEB_DIR="$(pwd)"
+PROJECT_ROOT="$(dirname "$WEB_DIR")"
+
+# Verify we're in the right place
+if [[ ! -f "$WEB_DIR/app.py" ]]; then
+    echo "❌ Error: Cannot find app.py in $WEB_DIR"
+    echo "💡 Make sure you're running this script from the web/ directory"
+    exit 1
+fi
 
 echo "📁 Project root: $PROJECT_ROOT"
+echo "📂 Web directory: $WEB_DIR"
 echo "💾 Data directory: $WEB_DIR/data"
 
 # Kill any existing Flask processes
@@ -43,14 +51,26 @@ echo "📝 Open in browser: http://127.0.0.1:$PORT"
 echo "⏹️  Press Ctrl+C to stop"
 echo
 
-cd "$WEB_DIR"
+# Already in web directory
+# cd "$WEB_DIR" - not needed since we're already here
 
 # Set up Python path and run
 export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
+
+# Check if we have Flask installed
+if ! python3 -c "import flask" 2>/dev/null; then
+    echo "❌ Flask is not installed!"
+    echo "💡 Installing Flask..."
+    cd "$PROJECT_ROOT"
+    source venv/bin/activate 2>/dev/null || echo "⚠️  Virtual environment not activated"
+    pip install flask
+    cd "$WEB_DIR"
+fi
+
 python3 -c "
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path('..').resolve()))
+sys.path.insert(0, str(Path('$PROJECT_ROOT').resolve()))
 from app import app
 app.run(host='127.0.0.1', port=$PORT, debug=True)
 "
