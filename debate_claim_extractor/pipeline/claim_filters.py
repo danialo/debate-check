@@ -4,7 +4,7 @@ Claim filtering and classification system to improve claim detection accuracy
 
 import re
 import logging
-from typing import List, Set, Optional, Tuple
+from typing import List, Set, Optional, Tuple, Iterable
 from abc import ABC, abstractmethod
 
 try:
@@ -17,12 +17,32 @@ from .models import Claim, ClaimType
 
 logger = logging.getLogger(__name__)
 
+# Domain anchors (case-insensitive)
+DEFAULT_ANCHORS: Set[str] = {
+    # existing/governmental
+    "senate", "house", "congress", "constitution", "federal", "state", "country",
+    # acronyms and orgs
+    "dei", "doj", "epa", "opec", "oecd", "nato", "cdc"
+}
+
+COPULA_SHORT_OK = re.compile(r"^(it|this|that|they|we|he|she)\s+(is|’s|'s)\s+\w+[.!]?$", re.IGNORECASE)
+
+def contains_anchor(text: str, anchors: Iterable[str]) -> bool:
+    if not anchors:
+        return False
+    al = {a.lower() for a in anchors}
+    # cheap tokenization
+    for tok in re.findall(r"[A-Za-z][A-Za-z0-9_-]*", text):
+        if tok.lower() in al:
+            return True
+    return False
+
 
 class ClaimFilter(ABC):
     """Abstract base class for claim filters"""
     
     @abstractmethod
-    def should_exclude(self, text: str, claim: Claim) -> Tuple[bool, str]:
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         """
         Determine if a claim should be excluded.
         
@@ -77,7 +97,7 @@ class ConversationalFilter(ClaimFilter):
         # Minimum word count for substantive claims
         self.min_substantive_words = 4  # Increased from 3
     
-    def should_exclude(self, text: str, claim: Claim) -> Tuple[bool, str]:
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         text_lower = text.lower().strip()
         
         # Check if it's a pure filler utterance
@@ -109,13 +129,15 @@ class ConversationalFilter(ClaimFilter):
 
 class QuestionFilter(ClaimFilter):
     """Filters out questions, which are not claims"""
+    def __init__(self, drop_questions: bool = True):
+        self.drop_questions = drop_questions
     
-    def should_exclude(self, text: str, claim: Claim) -> Tuple[bool, str]:
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         text_stripped = text.strip()
         
         # Direct question markers
         if text_stripped.endswith('?'):
-            return True, "Direct question"
+            return (True, "Direct question") if self.drop_questions else (False, "question-allowed-for-review")
         
         # Question word patterns
         question_patterns = [
@@ -143,7 +165,7 @@ class HypotheticalFilter(ClaimFilter):
             'picture this', 'think about', 'let\'s imagine'
         ]
     
-    def should_exclude(self, text: str, claim: Claim) -> Tuple[bool, str]:
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         text_lower = text.lower()
         
         for indicator in self.hypothetical_indicators:
@@ -175,7 +197,7 @@ class SponsorContentFilter(ClaimFilter):
             re.compile(r"\bmultiple ways to ingest\b", flags),
         ]
 
-    def should_exclude(self, text, claim):
+    def should_exclude(self, text, claim, **kwargs):
         tl = text.lower()
 
         # block-mode (optional)
@@ -217,7 +239,7 @@ class MetadataFilter(ClaimFilter):
             re.compile(r"^(can|could|would|should)\s+you\b", flags),
         ]
 
-    def should_exclude(self, text, claim):
+    def should_exclude(self, text, claim, **kwargs):
         t = text.strip()
         tl = t.lower()
 
@@ -238,8 +260,11 @@ class MetadataFilter(ClaimFilter):
 
 
 class MinimumContentFilter(ClaimFilter):
-    def __init__(self):
+    def __init__(self, min_content_words: int = 5, anchors: Optional[Set[str]] = None, context_window_chars: int = 250):
         flags = re.I | re.UNICODE
+        self.min_content_words = min_content_words
+        self.anchors: Set[str] = set(a.lower() for a in (anchors or DEFAULT_ANCHORS))
+        self.context_window_chars = context_window_chars
         self.filler_leads = re.compile(r"^(um+|uh+|erm+|like|you know|i mean)\b", flags)
         self.aux = re.compile(r"\b(is|are|was|were|has|have|had|does|do|did|can|could|should|would|may|might|must)\b", flags)
         self.verbish = re.compile(r"\b[a-z]+(?:ed|ing|en)\b", flags)
@@ -255,16 +280,31 @@ class MinimumContentFilter(ClaimFilter):
             'her','hers','it','its','they','them','their','theirs'
         }
 
-    def _anchored(self, t):
-        return bool(self.anchor_num.search(t) or self.anchor_money_pct.search(t) or self.anchor_propers.search(t))
+    def _anchored(self, t: str) -> bool:
+        return bool(
+            self.anchor_num.search(t) or
+            self.anchor_money_pct.search(t) or
+            self.anchor_propers.search(t) or
+            contains_anchor(t, self.anchors)
+        )
 
-    def should_exclude(self, text, claim):
+    def allow_short_copula(self, claim: Claim, context_before: str, context_after: str) -> bool:
+        if not COPULA_SHORT_OK.match(claim.text.strip()):
+            return False
+        # require nearby preceding context to attach meaning
+        return len((context_before or '').strip()) >= 40
+
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         tl = text.lower().strip()
         tokens = tl.split()
         n_tokens = len(tokens)
+        context_before = kwargs.get('context_before', '') or ''
+        context_after = kwargs.get('context_after', '') or ''
 
-        # very short + unanchored
+        # very short + unanchored: allow short copula if sufficient context
         if n_tokens < 7 and not self._anchored(text):
+            if self.allow_short_copula(claim, context_before, context_after):
+                return False, "short-copula-with-context"
             return True, f"Too short: {n_tokens} tokens (no anchors)"
 
         # filler lead-ins need substance soon
@@ -273,8 +313,10 @@ class MinimumContentFilter(ClaimFilter):
 
         # content words
         content = [w for w in tokens if self.word.fullmatch(w) and w not in self.stop]
-        if len(content) < 5 and not self._anchored(text):
-            return True, f"Too few content words: {len(content)}/5 (no anchors)"
+        if len(content) < self.min_content_words and not self._anchored(text):
+            if self.allow_short_copula(claim, context_before, context_after):
+                return False, "short-copula-with-context"
+            return True, f"Too few content words: {len(content)}/{self.min_content_words} (no anchors)"
 
         # require some predicate signal
         if not (self.aux.search(tl) or self.verbish.search(tl)):
@@ -307,7 +349,7 @@ class ShowIntroPleasantryFilter(ClaimFilter):
         self.has_predicate = re.compile(r"\b(is|are|was|were|has|have|had|does|did|do|can|could|should|would|may|might|must)\b", flags)
         self.anchor_propers = re.compile(r"(?:\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,})")
 
-    def should_exclude(self, text: str, claim: Claim) -> Tuple[bool, str]:
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         t = text.strip()
         tl = t.lower()
 
@@ -340,7 +382,7 @@ class BiographicalFilter(ClaimFilter):
                     self.anchor_money_pct.search(text) or
                     self.anchor_propers.search(text))
 
-    def should_exclude(self, text: str, claim: Claim) -> Tuple[bool, str]:
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         t = text.strip()
         tl = t.lower()
 
@@ -375,7 +417,7 @@ class TruncationFragmentFilter(ClaimFilter):
     def _anchored(self, t: str) -> bool:
         return bool(self.anchor_num.search(t) or self.anchor_propers.search(t))
 
-    def should_exclude(self, text: str, claim: Claim) -> Tuple[bool, str]:
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         t = text.strip()
         tl = t.lower()
         tokens = tl.split()
@@ -409,7 +451,7 @@ class PronounVaguenessFilter(ClaimFilter):
         # Concrete nouns that rescue vague references
         self.concrete_nouns = re.compile(r"\b(museum|university|book|study|research|evidence|data|theory|law|principle|discovery|invention|species|planet|element|molecule|gene|protein|disease|medication|treatment|country|city|war|battle|treaty|constitution|government|president|minister|company|product|technology|computer|internet|website|database|algorithm)\b", flags)
     
-    def should_exclude(self, text: str, claim: Claim) -> Tuple[bool, str]:
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         tl = text.lower()
         
         # Check for vague pronoun start
@@ -469,7 +511,7 @@ class DiscourseFragmentFilter(ClaimFilter):
             bool(self.allow_two_propers.search(text_lower))
         )
 
-    def should_exclude(self, text: str, claim: Claim) -> Tuple[bool, str]:
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         t = text.strip()
         tl = t.lower()
 
@@ -528,7 +570,7 @@ class MangledTextFilter(ClaimFilter):
             'falls flat in that moment you have many things',  # Specific mangled pattern
         ]
     
-    def should_exclude(self, text: str, claim: Claim) -> Tuple[bool, str]:
+    def should_exclude(self, text: str, claim: Claim, **kwargs) -> Tuple[bool, str]:
         text_lower = text.lower()
         
         # Check for corruption indicators
@@ -629,26 +671,28 @@ class ClaimTypeClassifier:
 class ImprovedClaimFilteringSystem:
     """Comprehensive claim filtering and classification system"""
     
-    def __init__(self, shared_state=None):
+    def __init__(self, shared_state=None, anchors: Optional[Set[str]] = None, drop_questions: bool = True,
+                 min_content_words: int = 5, context_window_chars: int = 250, **_):
         self.filters = [
             SponsorContentFilter(state=shared_state),
             MetadataFilter(),
-            MinimumContentFilter(),
+            MinimumContentFilter(min_content_words=min_content_words, anchors=anchors or DEFAULT_ANCHORS,
+                                 context_window_chars=context_window_chars),
             ShowIntroPleasantryFilter(),
             BiographicalFilter(),
             TruncationFragmentFilter(),
             PronounVaguenessFilter(),
             DiscourseFragmentFilter(),  # Improved version for complex discourse patterns
             ConversationalFilter(),
-            QuestionFilter(), 
+            QuestionFilter(drop_questions=drop_questions), 
             HypotheticalFilter(),
             MangledTextFilter()
         ]
         
         self.classifier = ClaimTypeClassifier()
-        logger.info(f"Initialized claim filtering system with {len(self.filters)} filters")
+        logger.info(f"Initialized claim filtering system with {len(self.filters)} filters (drop_questions={drop_questions})")
     
-    def filter_and_classify_claims(self, claims: List[Claim]) -> List[Claim]:
+    def filter_and_classify_claims(self, claims: List[Claim], context_map: Optional[dict] = None) -> List[Claim]:
         """
         Filter out non-claims and properly classify remaining claims.
         
@@ -664,8 +708,17 @@ class ImprovedClaimFilteringSystem:
             should_exclude = False
             exclusion_reason = ""
             
+            # extract transient context for filters
+            ctx = context_map.get(claim.id, {}) if context_map else {}
+            ctx_before = ctx.get('before', '')
+            ctx_after = ctx.get('after', '')
+
             for filter_obj in self.filters:
-                exclude, reason = filter_obj.should_exclude(claim.text, claim)
+                exclude, reason = filter_obj.should_exclude(
+                    claim.text, claim,
+                    context_before=ctx_before,
+                    context_after=ctx_after
+                )
                 if exclude:
                     should_exclude = True
                     exclusion_reason = reason

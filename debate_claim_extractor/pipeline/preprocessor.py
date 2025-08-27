@@ -8,6 +8,129 @@ from typing import List, Tuple, Optional
 
 logger = logging.getLogger(__name__)
 
+# --- Timestamps -------------------------------------------------------------
+
+# Matches (m.ss), (mm:ss), (hh:mm:ss), with optional decimals and optional end-range
+PAREN_TS = r"""
+\(
+   (?:
+      \d{1,2}:\d{2}(?::\d{2})?(?:\.\d{1,3})?      # 1:23 , 01:02:03 , 01:02:03.456
+      |
+      \d{1,3}\.\d{2,3}                             # 3.90 , 12.345
+   )
+   (?:\s*[-–]\s*
+      (?:
+         \d{1,2}:\d{2}(?::\d{2})?(?:\.\d{1,3})?
+         |
+         \d{1,3}\.\d{2,3}
+      )
+   )?
+\)
+"""
+
+# Matches [mm:ss], [m.ss], [hh:mm:ss]
+BRACK_TS = r"""
+\[
+   (?:
+      \d{1,2}:\d{2}(?::\d{2})?(?:\.\d{1,3})?
+      |
+      \d{1,3}\.\d{2,3}
+   )
+\]
+"""
+
+# Line-leading bare timestamps (and optional WebVTT arrow)
+LINE_TS = r"""
+^\s*
+(?:
+   \d{1,2}:\d{2}(?::\d{2})?(?:\.\d{1,3})?       # 00:12 , 01:02:03.4
+)
+(?:\s*-->\s*\d{1,2}:\d{2}(?::\d{2})?(?:\.\d{1,3})?)?
+\s*$
+"""
+
+TIMESTAMP_RE = re.compile(
+    rf"(?:{PAREN_TS})|(?:{BRACK_TS})|(?:{LINE_TS})",
+    re.VERBOSE | re.MULTILINE,
+)
+
+# --- Speaker labels ---------------------------------------------------------
+# Line-leading forms only: "Speaker 1:", "SPEAKER 2 -", "S1:", "Speaker 3 (laughs):"
+SPEAKER_LABEL_RE = re.compile(
+    r"""(?imx)
+^ \s*
+(?:
+   (?:speaker|spkr|spk|s)\s*
+   (?:\d+|[A-Z])               # 1, 2, A, B...
+   (?:\s*\([^)]+\))?           # optional parenthetical: (overlap), (off), etc.
+   \s*[:\-]                    # colon or dash as delimiter
+)
+\s*
+"""
+)
+
+# --- Boilerplate / footer links --------------------------------------------
+# Matches Dictationer footer lines and similar marketing blurbs
+BOILERPLATE_RE = re.compile(
+    r"""(?imx)
+^\s*
+\[
+? \s* transcribed \s+ by \s+ [^\]]+ \]? .* $     # [Transcribed by Dictationer...]
+|
+^\s* subscribe \s+ to \s+ remove \s+ this \s+ message .* $
+""",
+)
+
+# General http(s) links on their own lines (kept strict to avoid collateral damage)
+STANDALONE_URL_RE = re.compile(r"""(?im)^\s*https?://\S+\s*$""")
+
+# --- Utilities --------------------------------------------------------------
+
+MULTISPACE_RE = re.compile(r"[ \t]{2,}")
+MULTINEWLINE_RE = re.compile(r"\n{3,}")
+
+def _strip_inline_timestamps(text: str) -> str:
+    # Remove () and [] timestamps anywhere; safe because we require ":" or decimal with 2–3 digits
+    return TIMESTAMP_RE.sub("", text)
+
+def _strip_line_boilerplate(text: str) -> str:
+    # Remove whole-line boilerplate & standalone URLs
+    lines = []
+    for line in text.splitlines():
+        if BOILERPLATE_RE.search(line):
+            continue
+        if STANDALONE_URL_RE.match(line):
+            continue
+        lines.append(line)
+    return "\n".join(lines)
+
+def _strip_speaker_labels(text: str) -> str:
+    # Only at line starts; we keep labels that are embedded in sentences
+    def _repl(m: re.Match) -> str:
+        return ""  # drop the label prefix
+    return SPEAKER_LABEL_RE.sub(_repl, text)
+
+def clean_text(text: str) -> str:
+    """
+    Clean transcript text of timestamps, line-leading speaker labels,
+    and boilerplate before segmentation.
+    """
+    # 1) Remove Dictationer/boilerplate & raw link lines
+    text = _strip_line_boilerplate(text)
+
+    # 2) Remove inline timestamps in (), [] and bare line-leading time codes/WebVTT cues
+    text = _strip_inline_timestamps(text)
+
+    # 3) Remove line-leading speaker labels (we infer speakers later)
+    text = _strip_speaker_labels(text)
+
+    # 4) Normalize whitespace/newlines (but preserve single newlines as soft boundaries)
+    text = MULTISPACE_RE.sub(" ", text)
+    text = MULTINEWLINE_RE.sub("\n\n", text)
+
+    # 5) Trim
+    return text.strip()
+
 
 class DebatePreprocessor:
     """
@@ -55,6 +178,10 @@ class DebatePreprocessor:
             List of tuples: (speaker_id, utterance, line_number)
         """
         logger.debug(f"Processing {len(text)} characters of input text")
+        
+        # First, clean timestamps, boilerplate, and speaker labels
+        text = clean_text(text)
+        logger.debug(f"After cleaning: {len(text)} characters")
         
         lines = text.split('\n')
         utterances = []

@@ -47,9 +47,12 @@ class EnhancedClaimPostprocessor(ClaimPostprocessor):
         """
         logger.debug(f"Enhanced post-processing {len(claims)} raw claims")
         
-        # Step 1: Filter out non-claims and classify remaining claims
+        # Step 1: Build transient context for filters (same-turn, same-speaker)
+        context_map = self._build_filter_context(claims, sentences, max_context_chars=300)
+
+        # Step 2: Filter out non-claims and classify remaining claims
         if self.enable_filtering and self.filtering_system:
-            filtered_claims = self.filtering_system.filter_and_classify_claims(claims)
+            filtered_claims = self.filtering_system.filter_and_classify_claims(claims, context_map=context_map)
             logger.info(f"After filtering: {len(filtered_claims)} valid claims")
         else:
             filtered_claims = claims
@@ -94,6 +97,87 @@ class EnhancedClaimPostprocessor(ClaimPostprocessor):
         
         return final_claims
     
+    def _build_filter_context(self,
+                               claims: List[Claim],
+                               sentences: List[Sentence],
+                               *,
+                               context_window: int | None = None,
+                               max_context_chars: int = 300) -> dict:
+        """
+        Attach lightweight, same-turn/same-speaker context for filtering.
+        Produces a mapping claim_id -> {'before': str, 'after': str}
+        """
+        from collections import defaultdict
+
+        cw = self.context_window if context_window is None else context_window
+        if cw is None:
+            cw = 2
+
+        # Prefer composite turn key to avoid collisions across chunks
+        def turn_key(s: Sentence) -> tuple:
+            return (getattr(s, 'chunk_id', None), s.turn_id)
+
+        sents_by_turn: dict[tuple, list[Sentence]] = defaultdict(list)
+        for s in sentences:
+            sents_by_turn[turn_key(s)].append(s)
+
+        # Sort per turn and build id->index maps
+        idx_by_turn: dict[tuple, dict[str, int]] = {}
+        for k, lst in sents_by_turn.items():
+            lst.sort(key=lambda s: s.sentence_index)
+            idx_by_turn[k] = {s.id: i for i, s in enumerate(lst)}
+
+        # Helper to join with a char budget
+        def _join_with_char_budget(items: list[str], budget: int, reverse: bool = False) -> str:
+            acc, used = [], 0
+            it = reversed(items) if reverse else items
+            for t in it:
+                t = " ".join(t.split())
+                if not t:
+                    continue
+                add = (len(t) + (1 if used else 0))
+                if used + add > budget:
+                    break
+                acc.append(t)
+                used += add
+            if reverse:
+                acc.reverse()
+            return " ".join(acc)
+
+        context_map: dict[str, dict[str, str]] = {}
+        # Build per-claim contexts
+        for c in claims:
+            sid = getattr(c, 'sentence_id', None)
+            if not sid:
+                continue
+            # find which turn contains this sentence
+            found = None
+            for k, id_index in idx_by_turn.items():
+                if sid in id_index:
+                    found = (k, id_index[sid])
+                    break
+            if not found:
+                continue
+            k, idx = found
+            turn_list = sents_by_turn[k]
+            focus_sent = turn_list[idx]
+            spk = focus_sent.speaker
+
+            # window bounds
+            start = max(0, idx - cw)
+            end = min(len(turn_list), idx + cw + 1)
+
+            # collect same-speaker contexts only
+            before_texts = [ss.text for ss in turn_list[start:idx] if ss.speaker == spk]
+            after_texts  = [ss.text for ss in turn_list[idx+1:end] if ss.speaker == spk]
+
+            context_before = _join_with_char_budget(before_texts, max_context_chars, reverse=True)
+            context_after  = _join_with_char_budget(after_texts,  max_context_chars, reverse=False)
+
+            context_map[c.id] = {"before": context_before, "after": context_after}
+
+        return context_map
+
     def _add_context_enhanced(self, claims: List[Claim], sentences: List[Sentence]) -> List[Claim]:
         """Enhanced context addition that preserves new claim metadata."""
         # Create mappings for efficient lookup
