@@ -36,6 +36,7 @@ def test_heuristic_pipeline_basic():
     assert any("2008" in claim.text for claim in result.claims)
     assert any("better than" in claim.text for claim in result.claims)
     assert result.diagnostics["heuristic_candidates"] == len(result.claims)
+    assert all(claim.category.value == "empirical" for claim in result.claims)
 
 
 def test_llm_integration_adds_claims():
@@ -54,6 +55,7 @@ def test_llm_integration_adds_claims():
 
     assert any("middle-class families" in claim.text for claim in result.claims)
     assert result.diagnostics["llm_candidates"] >= 1
+    assert all(claim.category.value == "empirical" for claim in result.claims)
 
 
 def test_unlabeled_transcript_processed():
@@ -62,3 +64,4 @@ def test_unlabeled_transcript_processed():
 
     assert result.diagnostics["utterances"] >= 1
     assert any("15%" in claim.text for claim in result.claims)
+    assert all(claim.category.value == "empirical" for claim in result.claims)

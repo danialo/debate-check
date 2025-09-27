@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from . import heuristics
 from .llm import LLMClient, LLMClaim
-from .models import Claim, ClaimType, ExtractionResult, Sentence, Utterance
+from .models import Claim, ClaimCategory, ClaimType, ExtractionResult, Sentence, Utterance
 from .preprocess import parse_transcript
 
 
@@ -18,6 +18,7 @@ class ExtractionConfig:
     use_llm: bool = False
     llm_client: Optional[LLMClient] = None
     llm_context_window: int = 3  # sentences per prompt
+    include_narrative: bool = False
 
 
 class ClaimExtractionPipeline:
@@ -76,13 +77,17 @@ class ClaimExtractionPipeline:
             if not heuristic_claim:
                 continue
             metadata = {"rationale": heuristic_claim.rationale}
-            if heuristic_claim.claim_type == "factual" and heuristic_claim.rationale == "default factual statement":
+            category = _classify_heuristic_category(heuristic_claim)
+            if category is ClaimCategory.NARRATIVE:
                 metadata["anchor_level"] = "soft"
+            if not self.config.include_narrative and category is not ClaimCategory.EMPIRICAL:
+                continue
             claims.append(
                 Claim(
                     text=heuristic_claim.text,
                     speaker=sentence.speaker,
                     claim_type=ClaimType(heuristic_claim.claim_type),
+                    category=category,
                     confidence=heuristic_claim.confidence,
                     source_sentence=sentence,
                     origin="heuristic",
@@ -132,9 +137,13 @@ class ClaimExtractionPipeline:
                 metadata = dict(llm_claim.metadata or {})
                 soft = False
                 evidence = metadata.get("evidence", "")
-                if claim_type_enum is ClaimType.FACTUAL and not _has_anchors(text, evidence):
+                anchors = _has_anchors(text, evidence)
+                if claim_type_enum is ClaimType.FACTUAL and not anchors:
                     metadata["anchor_level"] = "soft"
                     soft = True
+                category = ClaimCategory.EMPIRICAL if claim_type_enum is not ClaimType.FACTUAL or anchors else ClaimCategory.NARRATIVE
+                if not self.config.include_narrative and category is not ClaimCategory.EMPIRICAL:
+                    continue
                 target_sentence = self._locate_sentence(text, candidate_sentences)
                 if not target_sentence:
                     target_sentence = Sentence(
@@ -151,6 +160,7 @@ class ClaimExtractionPipeline:
                         text=text,
                         speaker=llm_claim.speaker or utterance.speaker,
                         claim_type=claim_type_enum,
+                        category=category,
                         confidence=min(max(llm_claim.confidence, 0.0), 1.0),
                         source_sentence=target_sentence,
                         origin="llm",
@@ -214,3 +224,12 @@ def _has_anchors(text: str, evidence: str) -> bool:
     if any(word in combined for word in keywords):
         return True
     return False
+
+
+def _classify_heuristic_category(heuristic_claim: heuristics.HeuristicClaim) -> ClaimCategory:
+    claim_type = heuristic_claim.claim_type
+    if claim_type != "factual":
+        return ClaimCategory.EMPIRICAL
+    if heuristic_claim.rationale == "numeric evidence detected":
+        return ClaimCategory.EMPIRICAL
+    return ClaimCategory.NARRATIVE

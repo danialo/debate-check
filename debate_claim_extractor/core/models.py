@@ -17,6 +17,11 @@ class ClaimType(str, Enum):
     HISTORICAL = "historical"
 
 
+class ClaimCategory(str, Enum):
+    EMPIRICAL = "empirical"
+    NARRATIVE = "narrative"
+
+
 @dataclass(slots=True)
 class Utterance:
     """Single speaker turn produced by preprocessing."""
@@ -46,6 +51,7 @@ class Claim:
     text: str
     speaker: str
     claim_type: ClaimType
+    category: ClaimCategory
     confidence: float
     source_sentence: Sentence
     origin: str = "heuristic"
@@ -69,9 +75,11 @@ class ExtractionResult:
         """Return a lightweight, serialisable summary."""
 
         type_counts: Dict[str, int] = {}
+        category_counts: Dict[str, int] = {}
         for claim in self.claims:
             key = claim.claim_type.value if isinstance(claim.claim_type, ClaimType) else str(claim.claim_type)
             type_counts[key] = type_counts.get(key, 0) + 1
+            category_counts[claim.category.value] = category_counts.get(claim.category.value, 0) + 1
 
         return {
             "generated_at": self.generated_at.isoformat(),
@@ -90,6 +98,7 @@ class ExtractionResult:
             "counts": {
                 "total": len(self.claims),
                 "by_type": type_counts,
+                "by_category": category_counts,
             },
             "diagnostics": self.diagnostics,
         }
