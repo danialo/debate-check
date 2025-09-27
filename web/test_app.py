@@ -24,7 +24,7 @@ def home():
     ''')
 
 @app.route('/test')
-def test():
+def api_status():
     return {'status': 'working', 'message': 'Flask API is functional'}
 
 if __name__ == '__main__':

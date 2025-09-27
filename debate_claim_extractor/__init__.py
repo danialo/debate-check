@@ -1,12 +1,9 @@
-"""
-Debate Claim Extractor
+"""Debate Claim Extractor package."""
 
-A pipeline for extracting factual claims from debate transcripts.
-"""
-
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "debate-check"
 
-from .pipeline import ClaimExtractionPipeline
+from .core.pipeline import ClaimExtractionPipeline, ExtractionConfig
 
-__all__ = ["ClaimExtractionPipeline"]
+__all__ = ["ClaimExtractionPipeline", "ExtractionConfig"]
+
