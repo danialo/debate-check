@@ -23,6 +23,8 @@ class ExtractClaimsFromSegment(BaseMethod):
     CLAIM_INDICATORS = [
         r"\b\d+%",  # Percentages
         r"\b\d{4}\b",  # Years
+        r"\b\d+\s*(milliseconds?|seconds?|minutes?|hours?|days?|weeks?|months?|years?)\b",  # Quantities with units
+        r"\b\d+\s*(percent|million|billion|thousand)\b",  # Numeric quantities
         r"\bstud(?:y|ies)\b",  # Studies
         r"\bresearch\b",
         r"\bdata\b",
@@ -32,6 +34,9 @@ class ExtractClaimsFromSegment(BaseMethod):
         r"\bdemonstrates?\b",
         r"\bfound\b",
         r"\bmeasured?\b",
+        r"\bprecedes?\b",  # Temporal relationships (common in empirical claims)
+        r"\bcauses?\b",  # Causal relationships
+        r"\baffects?\b",  # Effects
     ]
 
     # Sentence boundary pattern
@@ -123,6 +128,7 @@ class ExtractAtomicClaim(BaseMethod):
 
     def execute(self, state: "DiscourseState", task: Task) -> OperatorResult:
         from ...artifacts.claim import AtomicClaim, ClaimType
+        from ...state.entity import Entity
 
         text = task.params["text"].strip()
         speaker = task.params.get("speaker")
@@ -149,10 +155,25 @@ class ExtractAtomicClaim(BaseMethod):
         # Emit artifact
         state.emit_artifact(claim)
 
+        # Register claim as entity for demonstrative resolution ("this", "that")
+        # Use the claim text (truncated) as the canonical name
+        canonical = text[:50] + "..." if len(text) > 50 else text
+        claim_entity = Entity(
+            entity_id="",
+            canonical=canonical,
+            aliases=set(),
+            entity_type="CLAIM",
+            first_mention_span=task.span,
+            introducing_speaker=speaker,
+            mention_spans=[task.span],
+        )
+        entity_id = state.register_entity(claim_entity)
+        state.boost_salience(entity_id)
+
         return OperatorResult(
             status=OperatorStatus.SUCCESS,
             artifacts_emitted=[claim.artifact_id],
-            state_mutations=[f"Emitted claim: {text[:50]}..."],
+            state_mutations=[f"Emitted claim: {text[:50]}...", f"Registered as entity {entity_id}"],
         )
 
     def _classify_claim(

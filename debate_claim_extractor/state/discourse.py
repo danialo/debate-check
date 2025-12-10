@@ -136,13 +136,24 @@ class DiscourseState:
         )
 
     def pop_scope(self) -> Optional[Scope]:
-        """Exit current scope."""
+        """Exit current scope, preserving salience for cross-turn resolution."""
         if not self.scope_stack:
             return None
 
         popped = self.scope_stack.pop()
+
+        # When popping, merge salience into parent frame (or keep if no parent)
+        # This preserves entity salience across turn boundaries
         if self.salience_stack:
-            self.salience_stack.pop()
+            popped_salience = self.salience_stack.pop()
+            if self.salience_stack:
+                # Merge into parent frame
+                parent_frame = self.salience_stack[-1]
+                for entity_id in popped_salience.entities:
+                    parent_frame.boost(entity_id)
+            else:
+                # No parent - push back as global frame to preserve cross-turn salience
+                self.salience_stack.append(popped_salience)
 
         self.current_scope_id = (
             self.scope_stack[-1].scope_id if self.scope_stack else None
@@ -163,8 +174,12 @@ class DiscourseState:
 
     def boost_salience(self, entity_id: str) -> None:
         """Boost entity salience in current frame."""
-        if self.salience_stack:
-            self.salience_stack[-1].boost(entity_id)
+        if not self.salience_stack:
+            # Create a global base frame if none exists
+            self.salience_stack.append(
+                SalienceFrame(scope_id="global", speaker="GLOBAL")
+            )
+        self.salience_stack[-1].boost(entity_id)
 
     def get_salient_entities(
         self, speaker: Optional[str] = None, limit: int = 5

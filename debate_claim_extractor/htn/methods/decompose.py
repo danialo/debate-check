@@ -64,8 +64,23 @@ class ProcessTurn(BaseMethod):
         turn_index = task.params["turn_index"]
         turn = state.speaker_turns[turn_index]
 
-        # First, push a scope for this turn
-        subtasks = [
+        subtasks = []
+
+        # 1. Register speaker as entity (for cross-turn reference resolution)
+        subtasks.append(
+            Task.create(
+                task_type="REGISTER_SPEAKER_ENTITY",
+                params={
+                    "speaker": turn.speaker,
+                    "turn_index": turn_index,
+                },
+                span=turn.span,
+                parent=task,
+            )
+        )
+
+        # 2. Push a scope for this turn
+        subtasks.append(
             Task.create(
                 task_type="PUSH_SCOPE",
                 params={
@@ -76,9 +91,9 @@ class ProcessTurn(BaseMethod):
                 span=turn.span,
                 parent=task,
             )
-        ]
+        )
 
-        # Segment the turn text on discourse markers
+        # 3. Extract claims FIRST (so they're available for demonstrative resolution)
         segments = self._segment_text(turn.text, turn.span)
 
         for seg_text, seg_span in segments:
@@ -95,7 +110,21 @@ class ProcessTurn(BaseMethod):
                 )
             )
 
-        # Pop scope at the end
+        # 4. Detect and resolve references (pronouns, demonstratives)
+        # Runs AFTER claims so demonstratives can resolve to preceding claims
+        subtasks.append(
+            Task.create(
+                task_type="DETECT_REFERENCES",
+                params={
+                    "text": turn.text,
+                    "speaker": turn.speaker,
+                },
+                span=turn.span,
+                parent=task,
+            )
+        )
+
+        # 5. Pop scope at the end
         subtasks.append(
             Task.create(
                 task_type="POP_SCOPE",
