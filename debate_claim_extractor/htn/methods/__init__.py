@@ -5,3 +5,4 @@ from . import base
 from . import decompose
 from . import claim
 from . import coref
+from . import dialectic

@@ -21,8 +21,12 @@ class ArgumentFrame(Artifact):
     summary: str = ""
     frame_type: str = "CLAIM"  # CLAIM, SUPPORT, REBUTTAL
     speaker: Optional[str] = None
+    span: Optional[tuple[int, int]] = None
+    parent_frame_id: Optional[str] = None
     child_claim_ids: list[str] = field(default_factory=list)
     child_frame_ids: list[str] = field(default_factory=list)
     coref_resolutions: dict[str, str] = field(default_factory=dict)
     confidence: float = 0.7
     method_path: list[str] = field(default_factory=list)
+    created_by_task: Optional[str] = None
+    created_by_method: Optional[str] = None

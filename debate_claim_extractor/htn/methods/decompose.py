@@ -93,7 +93,35 @@ class ProcessTurn(BaseMethod):
             )
         )
 
-        # 3. Extract claims FIRST (so they're available for demonstrative resolution)
+        # 3. Detect dialectic relation to previous turn (if any)
+        if turn_index > 0:
+            subtasks.append(
+                Task.create(
+                    task_type="DETECT_DIALECTIC_RELATION",
+                    params={
+                        "text": turn.text,
+                        "speaker": turn.speaker,
+                        "turn_index": turn_index,
+                    },
+                    span=turn.span,
+                    parent=task,
+                )
+            )
+
+        # 4. Build argument frame for this turn
+        subtasks.append(
+            Task.create(
+                task_type="BUILD_ARGUMENT_FRAME",
+                params={
+                    "speaker": turn.speaker,
+                    "turn_index": turn_index,
+                },
+                span=turn.span,
+                parent=task,
+            )
+        )
+
+        # 5. Extract claims (they get linked to the frame)
         segments = self._segment_text(turn.text, turn.span)
 
         for seg_text, seg_span in segments:
@@ -110,8 +138,7 @@ class ProcessTurn(BaseMethod):
                 )
             )
 
-        # 4. Detect and resolve references (pronouns, demonstratives)
-        # Runs AFTER claims so demonstratives can resolve to preceding claims
+        # 6. Detect and resolve references (pronouns, demonstratives)
         subtasks.append(
             Task.create(
                 task_type="DETECT_REFERENCES",
@@ -124,7 +151,19 @@ class ProcessTurn(BaseMethod):
             )
         )
 
-        # 5. Pop scope at the end
+        # 7. Finalize frame with detected relation
+        subtasks.append(
+            Task.create(
+                task_type="FINALIZE_FRAME",
+                params={
+                    "turn_index": turn_index,
+                },
+                span=turn.span,
+                parent=task,
+            )
+        )
+
+        # 8. Pop scope at the end
         subtasks.append(
             Task.create(
                 task_type="POP_SCOPE",

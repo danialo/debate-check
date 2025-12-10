@@ -155,6 +155,15 @@ class ExtractAtomicClaim(BaseMethod):
         # Emit artifact
         state.emit_artifact(claim)
 
+        # Link claim to current frame (if any)
+        frame_id = getattr(state, "_current_frame_id", None)
+        if frame_id:
+            from ...artifacts.frame import ArgumentFrame
+            frame = state.get_artifact(frame_id)
+            if frame and isinstance(frame, ArgumentFrame):
+                if claim.artifact_id not in frame.child_claim_ids:
+                    frame.child_claim_ids.append(claim.artifact_id)
+
         # Register claim as entity for demonstrative resolution ("this", "that")
         # Use the claim text (truncated) as the canonical name
         canonical = text[:50] + "..." if len(text) > 50 else text
@@ -170,10 +179,14 @@ class ExtractAtomicClaim(BaseMethod):
         entity_id = state.register_entity(claim_entity)
         state.boost_salience(entity_id)
 
+        mutations = [f"Emitted claim: {text[:50]}...", f"Registered as entity {entity_id}"]
+        if frame_id:
+            mutations.append(f"Linked to frame {frame_id}")
+
         return OperatorResult(
             status=OperatorStatus.SUCCESS,
             artifacts_emitted=[claim.artifact_id],
-            state_mutations=[f"Emitted claim: {text[:50]}...", f"Registered as entity {entity_id}"],
+            state_mutations=mutations,
         )
 
     def _classify_claim(
