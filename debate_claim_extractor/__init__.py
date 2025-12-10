@@ -1,9 +1,21 @@
 """Debate Claim Extractor package."""
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __author__ = "debate-check"
 
-from .core.pipeline import ClaimExtractionPipeline, ExtractionConfig
+# HTN-based extraction (new)
+from .htn import HTNPlanner, Task, PlannerBudgets, PlannerResult
+from .state import DiscourseState, SpeakerTurn
+from .artifacts import AtomicClaim, ClaimType, ArgumentFrame
 
-__all__ = ["ClaimExtractionPipeline", "ExtractionConfig"]
-
+__all__ = [
+    "HTNPlanner",
+    "Task",
+    "PlannerBudgets",
+    "PlannerResult",
+    "DiscourseState",
+    "SpeakerTurn",
+    "AtomicClaim",
+    "ClaimType",
+    "ArgumentFrame",
+]

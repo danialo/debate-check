@@ -4,8 +4,20 @@ from __future__ import annotations
 
 import re
 from typing import Iterable, List
+from uuid import uuid4
 
 from .models import Utterance
+
+
+def normalise_blocks(blocks: list[str]) -> list[str]:
+    """
+    Simple block normalization.
+
+    For now, just return the blocks as-is.
+    The full normalize.py had complex run-on splitting logic
+    that will be handled by HTN methods instead.
+    """
+    return blocks
 
 _SPEAKER_LINE_RE = re.compile(r"^\s*([A-Z][A-Z0-9 .'-]{0,40})[:\-]\s*(.*)$")
 _STAGE_DIRECTION_RE = re.compile(r"\s*[\[(][^\]\)]*[\])]")
@@ -136,8 +148,32 @@ def _fallback_utterances(lines: List[str]) -> List[Utterance]:
             return
         paragraph = " ".join(buffer)
         cleaned = _collapse_whitespace(_strip_stage_directions(paragraph))
-        if cleaned:
-            utterances.append(Utterance("UNKNOWN", cleaned, start_line))
+        if not cleaned:
+            buffer.clear()
+            return
+
+        chunks = normalise_blocks([cleaned])
+        if not chunks:
+            buffer.clear()
+            return
+
+        segment_id = str(uuid4())
+
+        stitched_chunks = [chunk.strip() for chunk in chunks if chunk.strip()]
+        if not stitched_chunks:
+            buffer.clear()
+            return
+
+        for position, chunk in enumerate(stitched_chunks):
+            utterances.append(
+                Utterance(
+                    "UNKNOWN",
+                    chunk,
+                    start_line,
+                    segment_id=segment_id,
+                    segment_position=position,
+                )
+            )
         buffer.clear()
 
     for idx, raw_line in enumerate(lines, start=1):
