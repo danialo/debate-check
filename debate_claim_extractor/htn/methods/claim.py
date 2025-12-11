@@ -50,6 +50,7 @@ class ExtractClaimsFromSegment(BaseMethod):
         """Split segment into sentences and create extraction tasks."""
         text = task.params["text"]
         speaker = task.params.get("speaker", "UNKNOWN")
+        use_llm = task.params.get("use_llm", False)
         base_offset = task.span[0]
 
         # Split into sentences
@@ -79,6 +80,7 @@ class ExtractClaimsFromSegment(BaseMethod):
                         params={
                             "text": sentence.strip(),
                             "speaker": speaker,
+                            "use_llm": use_llm,
                         },
                         span=(abs_start, abs_end),
                         parent=task,
@@ -132,9 +134,32 @@ class ExtractAtomicClaim(BaseMethod):
 
         text = task.params["text"].strip()
         speaker = task.params.get("speaker")
+        use_llm = task.params.get("use_llm", False)
 
-        # Classify claim type
+        # Classify claim type (heuristic first)
         claim_type, confidence, reasons = self._classify_claim(text)
+
+        # Try LLM classification if available, enabled, and within budget
+        llm_used = False
+        llm_budget_ok = (
+            not hasattr(state, 'llm_budget') or
+            state.llm_calls < state.llm_budget
+        )
+        if use_llm and state.llm_client is not None and llm_budget_ok:
+            try:
+                llm_result = state.llm_client.classify_claim(text)
+                state.llm_calls += 1
+                if llm_result and "claim_type" in llm_result:
+                    type_str = llm_result["claim_type"].upper()
+                    try:
+                        claim_type = ClaimType[type_str]
+                        confidence = llm_result.get("confidence", 0.85)
+                        reasons = [f"LLM classification: {llm_result.get('reasoning', 'no reason')}"]
+                        llm_used = True
+                    except KeyError:
+                        pass  # Unknown type, keep heuristic result
+            except Exception:
+                pass  # LLM failed, keep heuristic result
 
         # Create claim artifact
         claim = AtomicClaim(

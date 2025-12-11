@@ -61,6 +61,10 @@ class DiscourseState:
     llm_calls: int = 0
     llm_tokens_used: int = 0
 
+    # --- LLM client and budget (set by planner at runtime) ---
+    llm_client: Any = None
+    llm_budget: int = 100  # Default, overridden by planner
+
     # --- Method path tracking ---
     _method_paths: dict[str, list[str]] = field(default_factory=dict)
 

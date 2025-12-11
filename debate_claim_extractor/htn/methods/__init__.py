@@ -6,3 +6,4 @@ from . import decompose
 from . import claim
 from . import coref
 from . import dialectic
+from . import llm_classify

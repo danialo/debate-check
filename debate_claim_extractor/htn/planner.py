@@ -61,6 +61,9 @@ class HTNPlanner:
         self.config = config or PlannerConfig()
         self.budgets = self.config.budgets
 
+        # Optional LLM client for assisted extraction
+        self.llm_client: Optional[Any] = None
+
         # Execution state (reset on each run)
         self.task_stack: list[Task] = []
         self.seen_dedup_keys: set[str] = set()
@@ -85,6 +88,10 @@ class HTNPlanner:
         self.backtrack_count = 0
         self.start_time_ms = int(time.time() * 1000)
         self.trace.clear()
+
+        # Pass LLM client and budget to state for methods to use
+        state.llm_client = self.llm_client
+        state.llm_budget = self.budgets.max_llm_calls_per_transcript
 
         while self.task_stack:
             # Check hard budgets

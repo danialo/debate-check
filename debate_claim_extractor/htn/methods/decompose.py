@@ -23,12 +23,17 @@ class DecomposeTranscript(BaseMethod):
         return len(state.speaker_turns) > 0
 
     def decompose(self, state: "DiscourseState", task: Task) -> list[Task]:
+        use_llm = task.params.get("use_llm", False)
         subtasks = []
         for i, turn in enumerate(state.speaker_turns):
             subtasks.append(
                 Task.create(
                     task_type="PROCESS_TURN",
-                    params={"turn_index": i, "speaker": turn.speaker},
+                    params={
+                        "turn_index": i,
+                        "speaker": turn.speaker,
+                        "use_llm": use_llm,
+                    },
                     span=turn.span,
                     parent=task,
                 )
@@ -62,6 +67,7 @@ class ProcessTurn(BaseMethod):
 
     def decompose(self, state: "DiscourseState", task: Task) -> list[Task]:
         turn_index = task.params["turn_index"]
+        use_llm = task.params.get("use_llm", False)
         turn = state.speaker_turns[turn_index]
 
         subtasks = []
@@ -132,6 +138,7 @@ class ProcessTurn(BaseMethod):
                         "text": seg_text,
                         "speaker": turn.speaker,
                         "turn_index": turn_index,
+                        "use_llm": use_llm,
                     },
                     span=seg_span,
                     parent=task,
