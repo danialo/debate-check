@@ -7,3 +7,4 @@ from . import claim
 from . import coref
 from . import dialectic
 from . import llm_classify
+from . import fact_check

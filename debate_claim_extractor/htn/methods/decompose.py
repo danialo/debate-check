@@ -24,6 +24,7 @@ class DecomposeTranscript(BaseMethod):
 
     def decompose(self, state: "DiscourseState", task: Task) -> list[Task]:
         use_llm = task.params.get("use_llm", False)
+        fact_check = task.params.get("fact_check", False)
         subtasks = []
         for i, turn in enumerate(state.speaker_turns):
             subtasks.append(
@@ -33,6 +34,7 @@ class DecomposeTranscript(BaseMethod):
                         "turn_index": i,
                         "speaker": turn.speaker,
                         "use_llm": use_llm,
+                        "fact_check": fact_check,
                     },
                     span=turn.span,
                     parent=task,
@@ -68,6 +70,7 @@ class ProcessTurn(BaseMethod):
     def decompose(self, state: "DiscourseState", task: Task) -> list[Task]:
         turn_index = task.params["turn_index"]
         use_llm = task.params.get("use_llm", False)
+        fact_check = task.params.get("fact_check", False)
         turn = state.speaker_turns[turn_index]
 
         subtasks = []
@@ -170,7 +173,20 @@ class ProcessTurn(BaseMethod):
             )
         )
 
-        # 8. Pop scope at the end
+        # 8. Fact-check EMPIRICAL claims (if enabled)
+        subtasks.append(
+            Task.create(
+                task_type="FACT_CHECK_TURN_CLAIMS",
+                params={
+                    "turn_index": turn_index,
+                    "fact_check": fact_check,
+                },
+                span=turn.span,
+                parent=task,
+            )
+        )
+
+        # 9. Pop scope at the end
         subtasks.append(
             Task.create(
                 task_type="POP_SCOPE",

@@ -65,6 +65,11 @@ class DiscourseState:
     llm_client: Any = None
     llm_budget: int = 100  # Default, overridden by planner
 
+    # --- Fact-check client and budget (set by planner at runtime) ---
+    fact_check_client: Any = None
+    fact_check_budget: int = 100
+    fact_check_count: int = 0
+
     # --- Method path tracking ---
     _method_paths: dict[str, list[str]] = field(default_factory=dict)
 

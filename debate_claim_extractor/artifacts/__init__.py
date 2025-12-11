@@ -5,6 +5,7 @@ from .claim import AtomicClaim, ClaimType
 from .frame import ArgumentFrame
 from .diagnostic import DiagnosticArtifact
 from .resolution import TentativeResolution, ResolutionStatus
+from .fact_check import FactCheckResult, VerificationStatus
 
 __all__ = [
     "Artifact",
@@ -14,4 +15,6 @@ __all__ = [
     "DiagnosticArtifact",
     "TentativeResolution",
     "ResolutionStatus",
+    "FactCheckResult",
+    "VerificationStatus",
 ]

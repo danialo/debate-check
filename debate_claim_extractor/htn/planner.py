@@ -64,6 +64,10 @@ class HTNPlanner:
         # Optional LLM client for assisted extraction
         self.llm_client: Optional[Any] = None
 
+        # Optional fact-check client for verification
+        self.fact_check_client: Optional[Any] = None
+        self.fact_check_budget: int = 100
+
         # Execution state (reset on each run)
         self.task_stack: list[Task] = []
         self.seen_dedup_keys: set[str] = set()
@@ -92,6 +96,11 @@ class HTNPlanner:
         # Pass LLM client and budget to state for methods to use
         state.llm_client = self.llm_client
         state.llm_budget = self.budgets.max_llm_calls_per_transcript
+
+        # Pass fact-check client and budget to state
+        state.fact_check_client = self.fact_check_client
+        state.fact_check_budget = self.fact_check_budget
+        state.fact_check_count = 0
 
         while self.task_stack:
             # Check hard budgets
