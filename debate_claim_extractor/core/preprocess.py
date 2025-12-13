@@ -22,6 +22,8 @@ def normalise_blocks(blocks: list[str]) -> list[str]:
 _SPEAKER_LINE_RE = re.compile(r"^\s*([A-Z][A-Z0-9 .'-]{0,40})[:\-]\s*(.*)$")
 _STAGE_DIRECTION_RE = re.compile(r"\s*[\[(][^\]\)]*[\])]")
 _MULTISPACE_RE = re.compile(r"\s{2,}")
+_TIMESTAMP_RE = re.compile(r"\b\d{1,2}:\d{2}:\d{2}(?:\.\d+)?\b")
+_COMMENT_LINE_RE = re.compile(r"^\s*#")
 
 _TITLE_PREFIXES = {
     "MR",
@@ -53,6 +55,11 @@ _LEADING_TITLES = {
 
 def _strip_stage_directions(text: str) -> str:
     return _STAGE_DIRECTION_RE.sub(" ", text)
+
+
+def _strip_timestamps(text: str) -> str:
+    """Remove HH:MM:SS.mmm timestamps from text."""
+    return _TIMESTAMP_RE.sub(" ", text)
 
 
 def _collapse_whitespace(text: str) -> str:
@@ -147,7 +154,10 @@ def _fallback_utterances(lines: List[str]) -> List[Utterance]:
         if not buffer:
             return
         paragraph = " ".join(buffer)
-        cleaned = _collapse_whitespace(_strip_stage_directions(paragraph))
+        # Strip timestamps, stage directions, and collapse whitespace
+        cleaned = _strip_timestamps(paragraph)
+        cleaned = _strip_stage_directions(cleaned)
+        cleaned = _collapse_whitespace(cleaned)
         if not cleaned:
             buffer.clear()
             return
@@ -177,11 +187,16 @@ def _fallback_utterances(lines: List[str]) -> List[Utterance]:
         buffer.clear()
 
     for idx, raw_line in enumerate(lines, start=1):
-        if not raw_line.strip():
+        stripped = raw_line.strip()
+        # Skip empty lines
+        if not stripped:
             flush(idx)
             start_line = idx + 1
             continue
-        buffer.append(raw_line.strip())
+        # Skip comment lines (e.g., # tactiq.io header)
+        if _COMMENT_LINE_RE.match(stripped):
+            continue
+        buffer.append(stripped)
 
     flush(len(lines) + 1)
 

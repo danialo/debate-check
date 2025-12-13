@@ -29,6 +29,8 @@ class Utterance:
     speaker: str
     text: str
     line_number: int
+    segment_id: Optional[str] = None
+    segment_position: int = 0
 
 
 @dataclass(slots=True)
