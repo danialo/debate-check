@@ -7,6 +7,7 @@ from typing import Iterable, List
 from uuid import uuid4
 
 from .models import Utterance
+from .turn_detector import detect_turns, detect_continuous_text
 
 
 def normalise_blocks(blocks: list[str]) -> list[str]:
@@ -146,6 +147,11 @@ def iter_utterance_text(utterances: Iterable[Utterance]) -> Iterable[str]:
 def _fallback_utterances(lines: List[str]) -> List[Utterance]:
     """Build utterances when no explicit speaker labels are present."""
 
+    # Check if this is a wall-of-text transcript (like YouTube auto-captions)
+    if detect_continuous_text(lines):
+        return _process_continuous_text(lines)
+
+    # Original logic for transcripts with blank line separators
     utterances: List[Utterance] = []
     buffer: List[str] = []
     start_line = 1
@@ -199,5 +205,52 @@ def _fallback_utterances(lines: List[str]) -> List[Utterance]:
         buffer.append(stripped)
 
     flush(len(lines) + 1)
+
+    return utterances
+
+
+def _process_continuous_text(lines: List[str]) -> List[Utterance]:
+    """
+    Process wall-of-text transcripts using turn detection.
+
+    This handles transcripts like YouTube auto-captions where there are
+    no speaker labels or paragraph breaks - just continuous text.
+    """
+    # Reconstruct the full text
+    full_text = " ".join(line.strip() for line in lines if line.strip())
+
+    # Clean up
+    full_text = _strip_timestamps(full_text)
+    full_text = _collapse_whitespace(full_text)
+
+    if not full_text:
+        return []
+
+    # Detect turns
+    turns = detect_turns(full_text)
+
+    if not turns:
+        # Fallback: treat as single utterance (shouldn't happen)
+        return [Utterance("UNKNOWN", full_text, 1)]
+
+    # Convert turns to utterances
+    utterances: List[Utterance] = []
+    for i, turn in enumerate(turns):
+        # Strip stage directions from turn text
+        text = _strip_stage_directions(turn.text)
+        text = _collapse_whitespace(text)
+
+        if not text:
+            continue
+
+        utterances.append(
+            Utterance(
+                speaker=turn.speaker,
+                text=text,
+                line_number=i + 1,  # Synthetic line numbers
+                segment_id=str(uuid4()),
+                segment_position=0,
+            )
+        )
 
     return utterances
