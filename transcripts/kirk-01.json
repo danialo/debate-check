@@ -1,0 +1,1643 @@
+{
+  "claims": [
+    {
+      "id": "claim_6b6e30f9c9a05993cc2c19cf",
+      "text": "Our first question is from Zina Zubar from Sydney, Sussex.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        86,
+        144
+      ]
+    },
+    {
+      "id": "claim_fecd51c67cde7762a9b5f0b2",
+      "text": "Remember, you have the right of response.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        173,
+        214
+      ]
+    },
+    {
+      "id": "claim_e8bb6f524cc4188823dbb92a",
+      "text": "Um, I have quite a simple question for you.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        215,
+        258
+      ]
+    },
+    {
+      "id": "claim_b83cec0d82a49d3a79020497",
+      "text": "I was wondering why you now refuse to engage with further debate with him.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        318,
+        392
+      ]
+    },
+    {
+      "id": "claim_b2c7db7dd8f1700b273f108e",
+      "text": "F first of all, he's coming on my show this summer.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        408,
+        459
+      ]
+    },
+    {
+      "id": "claim_04ca1792b3c498a95040fbdb",
+      "text": "I flew 5,000 miles across the world to have you ask why I'm not going to debate a left-wing YouTuber.",
+      "claim_type": "predictive",
+      "speaker": "UNKNOWN",
+      "confidence": 0.7,
+      "span": [
+        490,
+        591
+      ]
+    },
+    {
+      "id": "claim_06d8f6f74ccfbe2a855de692",
+      "text": "He's coming on my show this summer.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        744,
+        779
+      ]
+    },
+    {
+      "id": "claim_68d183a6d6dcc1bed271482d",
+      "text": "I came to Cambridge to have you ask me that.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        797,
+        841
+      ]
+    },
+    {
+      "id": "claim_1fa09d1a9215c01e64769087",
+      "text": "but is is this what I can expect?",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        1088,
+        1121
+      ]
+    },
+    {
+      "id": "claim_d658c8826430321f952c9a8c",
+      "text": "He shows up demanding to come up to the mic immediately.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        1336,
+        1392
+      ]
+    },
+    {
+      "id": "claim_204022b04b569d96cc79be8d",
+      "text": "Your opinion is on abortion.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        1990,
+        2018
+      ]
+    },
+    {
+      "id": "claim_b6dfc3c18042c15944d4a2a3",
+      "text": "but about abortion specifically, why why do you think abortion is wrong specifically?",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        2050,
+        2135
+      ]
+    },
+    {
+      "id": "claim_82f1f1639defef01f5221eec",
+      "text": "Well, you agree murder is wrong.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        2136,
+        2168
+      ]
+    },
+    {
+      "id": "claim_1448153d420ef5997babc55c",
+      "text": "So this this is where we get to the question, right?",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        2184,
+        2236
+      ]
+    },
+    {
+      "id": "claim_5c0af921e174de6d97d496fe",
+      "text": "Because what what is it about murder you say is wrong?",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        2237,
+        2291
+      ]
+    },
+    {
+      "id": "claim_78a08076a8e95b89dfbb3b06",
+      "text": "Like why is murder wrong?",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        2292,
+        2317
+      ]
+    },
+    {
+      "id": "claim_54cfc1d556ac051eedd87d83",
+      "text": "Not just because it has consciousness or because it's of a certain age.",
+      "claim_type": "philosophical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.85,
+      "span": [
+        2352,
+        2423
+      ]
+    },
+    {
+      "id": "claim_9d9e12d59c415c3751a65404",
+      "text": "Because it's a And what is it that gives human being this moral worth?",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        2446,
+        2516
+      ]
+    },
+    {
+      "id": "claim_99cdcefb0a5acd2846ab4d59",
+      "text": "I'm I can imagine it's because it is a human being because that is a soul.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        2602,
+        2676
+      ]
+    },
+    {
+      "id": "claim_ece5de5c94157e973b9c6eee",
+      "text": "And what what is this soul?",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        2677,
+        2704
+      ]
+    },
+    {
+      "id": "claim_7d56098f4c3ca1d07ab287c6",
+      "text": "This idea that it's exactly I mean again the Greeks postulated that it is the entirety of your being.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        2732,
+        2833
+      ]
+    },
+    {
+      "id": "claim_db8ee0e8abb707a71a1421c0",
+      "text": "I mean, every civilization has had a different belief,",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        2879,
+        2933
+      ]
+    },
+    {
+      "id": "claim_1f4b847981a4531d1b9adf6c",
+      "text": "but agreed upon ethical monotheism, which is the creed of the west and what the birth certificate of my country articulates that every human being is more than just matter.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        2934,
+        3106
+      ]
+    },
+    {
+      "id": "claim_906bc81e6eda38beab5db91f",
+      "text": "but it also has an invisible element to you that will live beyond you.",
+      "claim_type": "predictive",
+      "speaker": "UNKNOWN",
+      "confidence": 0.7,
+      "span": [
+        3145,
+        3215
+      ]
+    },
+    {
+      "id": "claim_8b8531d5d9476a0da15cc334",
+      "text": "Ethical monotheism, which is the creed of the West.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        3303,
+        3354
+      ]
+    },
+    {
+      "id": "claim_3bfb43f7a792dd760cd4fde0",
+      "text": "And again, the Declaration of Independence mentions God four times. the the founders were explicitly believed not in a secular moral morality",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        3355,
+        3496
+      ]
+    },
+    {
+      "id": "claim_ec5cdfdeeabd47f135ab13cc",
+      "text": "but a divinely given one of at least this idea that there is a god and you are not him and let me ask you what is the first stage of human development so the f I mean this is the thing right we can take it from the sperm being generated in the father and the usite being generated in the mother right they fuse at birth uh conception sorry the only thing that happens at conception is these two cells fuse right no DNA is created a zyg is not created DNA no that's not true the DNA The DNA coding at the Hold on.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        3497,
+        4009
+      ]
+    },
+    {
+      "id": "claim_4c4016121d08984d9cf35b47",
+      "text": "Does a zygote have a unique marker?",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4020,
+        4055
+      ]
+    },
+    {
+      "id": "claim_be0a16e905d656b812a03700",
+      "text": "Does a zygote have a unique marker?",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4070,
+        4105
+      ]
+    },
+    {
+      "id": "claim_b5a8df54df634846f9f0cea0",
+      "text": "You have to let me speak.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4106,
+        4131
+      ]
+    },
+    {
+      "id": "claim_18068311c63baa9733a54922",
+      "text": "Does a zygote have a unique marker?",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4163,
+        4198
+      ]
+    },
+    {
+      "id": "claim_9e966a65d6ae9659da9a8b47",
+      "text": "Oh, so it is something different.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4426,
+        4459
+      ]
+    },
+    {
+      "id": "claim_7991d98fa5168cff429a901d",
+      "text": "Charlie, DNA is not created.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4460,
+        4488
+      ]
+    },
+    {
+      "id": "claim_c5bbb62b18831fc5a8258ced",
+      "text": "You have the father has his own genome.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4509,
+        4548
+      ]
+    },
+    {
+      "id": "claim_61c8368c6f10023b1406ee3d",
+      "text": "The mother has her own genome.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4549,
+        4579
+      ]
+    },
+    {
+      "id": "claim_9e6309f7c4112a77060ec53b",
+      "text": "This is why you have the same characteristics.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4591,
+        4637
+      ]
+    },
+    {
+      "id": "claim_ec7d474271b7ffe47485be6c",
+      "text": "That's why you have similar characteristics to your siblings.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4696,
+        4757
+      ]
+    },
+    {
+      "id": "claim_191bbb9c83002bdad3c844b6",
+      "text": "But all conception is these two cells joining.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4882,
+        4928
+      ]
+    },
+    {
+      "id": "claim_ce1208b670379f299e03a3f9",
+      "text": "But these two cells were created the mother cells were created long before she they were created when she was a fetus.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        4936,
+        5054
+      ]
+    },
+    {
+      "id": "claim_09b91bd4e31e07358b13a99b",
+      "text": "So we can't we can't establish at conception is these two se these two cells fuse.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        5114,
+        5196
+      ]
+    },
+    {
+      "id": "claim_f1e346ac5eb30252d823fbe4",
+      "text": "but suddenly there's there's correct something magical happens at that it's not magical Charlie we know about this well hold on hold on Charlie time out hold onie I promise you I'm not trying to score points I'm not trying to score points on you this is we call it the miracle of life for a reason we've not been able to",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        5366,
+        5686
+      ]
+    },
+    {
+      "id": "claim_3ab588f0f1639e3e78231d52",
+      "text": "The ability to magical it's not you say magical is it?",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        5815,
+        5869
+      ]
+    },
+    {
+      "id": "claim_69e9ac834e8202ad7c3d1a49",
+      "text": "But time out is isn't there a separate DNA though than the mother?",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        6060,
+        6126
+      ]
+    },
+    {
+      "id": "claim_1fe854cba41d9af0297346cf",
+      "text": "A new coding is created.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        6217,
+        6241
+      ]
+    },
+    {
+      "id": "claim_6983978dd6ee2e2d04778e10",
+      "text": "You are a blend of the two.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        6242,
+        6269
+      ]
+    },
+    {
+      "id": "claim_ccab2feb7113c428892ab189",
+      "text": "So so when did your life I mean again this is this comes from what you define as where life started.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        6319,
+        6419
+      ]
+    },
+    {
+      "id": "claim_c2c40307f43b63e3f48867f1",
+      "text": "So the way the way DNA is arranged in a cell is it's arranged in chromosomes.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        6607,
+        6684
+      ]
+    },
+    {
+      "id": "claim_5751d482cb8c43c260c7d196",
+      "text": "So you have one from the mother one from the father typically in a healthy individual.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        6712,
+        6798
+      ]
+    },
+    {
+      "id": "claim_9286e63d4fcff11e79d7d2da",
+      "text": "Right now you can take those maternal chromosomes out and you can find that th this is who the person's mother is and you can do the same with the father.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        6799,
+        6953
+      ]
+    },
+    {
+      "id": "claim_c245bd40dc2ede23adc97534",
+      "text": "Now the reason you are different to your mother and father is because some of those chromosomes express genes that are different from each other.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        6954,
+        7099
+      ]
+    },
+    {
+      "id": "claim_5770b6a7f768e4ba0c4f5088",
+      "text": "There's no there's no there's no space for any kind of moral framework to come into that until you consider that a human being is capable of consciousness and of suffering.",
+      "claim_type": "philosophical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.85,
+      "span": [
+        7170,
+        7342
+      ]
+    },
+    {
+      "id": "claim_96dda22656113fb1760a0fc9",
+      "text": "These two DNA molecules are fusing, that does not suddenly flip a switch that attributes moral worth to that individual.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        7472,
+        7592
+      ]
+    },
+    {
+      "id": "claim_3b866d3a135da05acf344d1a",
+      "text": "I believe that if a if an individual is capable of suffering then it's wrong.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        7695,
+        7772
+      ]
+    },
+    {
+      "id": "claim_a1056473a1778646b98d32b6",
+      "text": "Just so you can understand, I I would agree as many reasonable people would that at 9 months it like it's unreasonable to expect someone to get an abortion, right?",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        7822,
+        7985
+      ]
+    },
+    {
+      "id": "claim_4ede1ab545351caf20f6b505",
+      "text": "Unless you have some extreme circumstances,",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        7986,
+        8029
+      ]
+    },
+    {
+      "id": "claim_76bc5e43530a7622da86ab54",
+      "text": "But it also seems radical to say that a woman who has just, you know, the cells have just fused to deny her of an abortion also seems wrong to me because that that, you know, that zygote is not capable of suffering as far as we know.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        8086,
+        8319
+      ]
+    },
+    {
+      "id": "claim_4b6addd90ec2f72a5ed80eb6",
+      "text": "So you're by again by what moral standard is that just your opinion?",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        8320,
+        8388
+      ]
+    },
+    {
+      "id": "claim_5fc6b5b3df02d359b11ead84",
+      "text": "Because suffering is a bad thing.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        8433,
+        8466
+      ]
+    },
+    {
+      "id": "claim_556a918fa40e5e9f596e10a1",
+      "text": "We all know suffering is a bad thing.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        8467,
+        8504
+      ]
+    },
+    {
+      "id": "claim_b20c6a92fb8e9b3ef04a187a",
+      "text": "I believe that suffering is an objectively negative.",
+      "claim_type": "introspective",
+      "speaker": "UNKNOWN",
+      "confidence": 0.9,
+      "span": [
+        8597,
+        8649
+      ]
+    },
+    {
+      "id": "claim_76e521fbb00194c66ad7f3cf",
+      "text": "So if you if you can't feel it, is it okay?",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        8650,
+        8693
+      ]
+    },
+    {
+      "id": "claim_6f6b70803bce53a63b4616d7",
+      "text": "In in the sense that if no one's suffering from it, if you have a scenario where nobody is suffering from something, then yes, of course.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        8781,
+        8918
+      ]
+    },
+    {
+      "id": "claim_1574d8e5a95e50e0e8204356",
+      "text": "There's no there's no a moral something is only a moral question if it affects someone's well-being.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        8919,
+        9019
+      ]
+    },
+    {
+      "id": "claim_16ee331d262ce8dbd1fcbcbb",
+      "text": "So let me just make sure I understand this correctly that if it doesn't affect their well-being.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        9020,
+        9116
+      ]
+    },
+    {
+      "id": "claim_257a782429c1b02f84458833",
+      "text": "So dementia patients that don't know who they are or where they're from.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        9117,
+        9189
+      ]
+    },
+    {
+      "id": "claim_57c71a1089cc803b008ae967",
+      "text": "So can you imagine a scenario where we lived in a society where we killed people when they they you know they underwent they suffered from dementia were unccapable of suffering and we killed them right that would not that does not is not a scenario that involves an absence of suffering there's still suffering involved people's imagine you grow up thinking my dad could be killed at any moment because he's going to get dementia imagine living your life thinking I could get dementia and suddenly I'd be killed by my state imagine a world where you slaughter a million babies every year in America",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        9485,
+        10083
+      ]
+    },
+    {
+      "id": "claim_ced5ee5e66bf62410455295b",
+      "text": "If it's a forcible removal from the umbilical cord of an another human life, again, we we have clarity",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        10161,
+        10263
+      ]
+    },
+    {
+      "id": "claim_4ee333d22a30db1b6792862d",
+      "text": "When those two cells fused together to yours to use your terminology, that is where the process accepted terminology.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        10418,
+        10535
+      ]
+    },
+    {
+      "id": "claim_8ffaf5e92ff83fd0eede2718",
+      "text": "Therefore, those human beings are deserving of human rights.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        10664,
+        10724
+      ]
+    },
+    {
+      "id": "claim_2d882f65bd423a0a67b31837",
+      "text": "The process of development begins from the moment the sperm is being generated in the father, the moment the eggs are being generated in the mother.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        10809,
+        10957
+      ]
+    },
+    {
+      "id": "claim_55948abe9a497bf59581a9da",
+      "text": "It makes perfect sense because that that is when your journey as a human being when the sperm and egg were separate, you were not",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        11069,
+        11198
+      ]
+    },
+    {
+      "id": "claim_78b73b8abe3f539f0d14e190",
+      "text": "You were not created uniquely.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        11224,
+        11254
+      ]
+    },
+    {
+      "id": "claim_fcdce74981c25cea9c1a451f",
+      "text": "It's like saying that we have a full car just because we have all the parts.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        11381,
+        11457
+      ]
+    },
+    {
+      "id": "claim_eddd5fef72685db4f9576df1",
+      "text": "yet put together until conception happens and the zygote was formed.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        11469,
+        11537
+      ]
+    },
+    {
+      "id": "claim_3af031d238e1444d93ee7951",
+      "text": "But have you made the switch",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        11737,
+        11765
+      ]
+    },
+    {
+      "id": "claim_584f7e1335dd8fbd0f22dacf",
+      "text": "Get unlimited data plans, mobile hotspots, international roaming, and even a backup line on your phone.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        11874,
+        11977
+      ]
+    },
+    {
+      "id": "claim_5c0729b1125d193ebc635f74",
+      "text": "Um so first of all my first question or my only question is um you've advocated and applauded the reducing and removing of public funding for universities on the grounds they promote ideological biases.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        12170,
+        12372
+      ]
+    },
+    {
+      "id": "claim_fc1e34254411debd6757044d",
+      "text": "Given that universities play a critical role in driving national innovation, research and upward mobility, especially through federally funded grants.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        12373,
+        12523
+      ]
+    },
+    {
+      "id": "claim_ba61eb4458c2993a39f62df8",
+      "text": "but in Harvard's case, for example, who's getting their funding pulled, they have a $50 billion endowment.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.85,
+      "span": [
+        12647,
+        12753
+      ]
+    },
+    {
+      "id": "claim_8d6bacc8485655776bf319e5",
+      "text": "Just so we are clear, in pounds, that would be like what 42 billion 45 billion.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.85,
+      "span": [
+        12754,
+        12833
+      ]
+    },
+    {
+      "id": "claim_e3d452db522578380f2bdbe7",
+      "text": "And if you have certain behavior and certain practices, then you should not get federal funding.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        12986,
+        13082
+      ]
+    },
+    {
+      "id": "claim_9b43f0290f5ca561b37b2de3",
+      "text": "Harvard is in direct violation of the United States Supreme Court fair admissions case which says you cannot discriminate people based on the the color of their skin.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        13083,
+        13249
+      ]
+    },
+    {
+      "id": "claim_77258241304aeab009a4bfcd",
+      "text": "The point of they can the point of an endowment is to manage a fund through perpetuity.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        13325,
+        13412
+      ]
+    },
+    {
+      "id": "claim_d56f639dceb5dd92a5340bf6",
+      "text": "Cambridge has an endowment and that endowment allows uh professorships to be funded to allow for research into sciences.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        13413,
+        13533
+      ]
+    },
+    {
+      "id": "claim_7bb1a8941f59e4d3331c2eac",
+      "text": "You just said it funds research into the sciences.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        13583,
+        13633
+      ]
+    },
+    {
+      "id": "claim_ec907d7225ae34eeae516ac6",
+      "text": "But the endowment is you the interest alone on their endowment could fund the entire research and development budget of most Ivy League schools.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        13707,
+        13851
+      ]
+    },
+    {
+      "id": "claim_4c53e2f00a771da8b0f6aad2",
+      "text": "They have a $50 billion endowment.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.85,
+      "span": [
+        13852,
+        13886
+      ]
+    },
+    {
+      "id": "claim_59c8750d005b206e5f1c68b1",
+      "text": "Even like a podunk money manager in America can earn a 7 to 10% investment in the markets the last couple years.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.85,
+      "span": [
+        13887,
+        13999
+      ]
+    },
+    {
+      "id": "claim_ad4d5be97285a840286eb85d",
+      "text": "That's $5 billion of returns that that endowment could then reinvest in whatever they want.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.85,
+      "span": [
+        14000,
+        14091
+      ]
+    },
+    {
+      "id": "claim_92c579685cfc638885210fc6",
+      "text": "Instead, Harvard has become a hedge fund with a radical school attached.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        14092,
+        14164
+      ]
+    },
+    {
+      "id": "claim_169af1a82da311b906492535",
+      "text": "But is not just Harvard.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        14238,
+        14262
+      ]
+    },
+    {
+      "id": "claim_37303e7c7477ccbb2720a3e4",
+      "text": "A lot of them did study liberal arts.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        14529,
+        14566
+      ]
+    },
+    {
+      "id": "claim_9f0fbbf04944000d4ec6d022",
+      "text": "And you keep undermining these august institutions which have provided a lot for society.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        14567,
+        14656
+      ]
+    },
+    {
+      "id": "claim_41f4a81f0d980345ed7a825b",
+      "text": "Like society's backbones have been universities and higher learning institutes and",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        14657,
+        14739
+      ]
+    },
+    {
+      "id": "claim_41b6ecfd3684d52ef9b9906b",
+      "text": "Do you know that he believes college is such a scam he would pay people $100,000 a year for 20 years straight not to go to college.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        15161,
+        15292
+      ]
+    },
+    {
+      "id": "claim_2a8ce78e4e6f38c9cc13ecad",
+      "text": "Peter Teal, who got a philosophy degree, made billions of dollars, and has now forked over tens of millions of dollars for people not to go to US universities and colleges.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        15340,
+        15512
+      ]
+    },
+    {
+      "id": "claim_5a56a6bcdfb11854cb6489d8",
+      "text": "But there's to complete the point is that Thomas went to did liberal arts.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        15591,
+        15665
+      ]
+    },
+    {
+      "id": "claim_0123d7be0ab6df2502075715",
+      "text": "Look, there in America, there are far too many people going to college.",
+      "claim_type": "predictive",
+      "speaker": "UNKNOWN",
+      "confidence": 0.7,
+      "span": [
+        15666,
+        15737
+      ]
+    },
+    {
+      "id": "claim_ea5072befcc29edd5288495f",
+      "text": "There is a major trade deficit problem in the United States.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        15821,
+        15881
+      ]
+    },
+    {
+      "id": "claim_b0741763652c07d17751fdd2",
+      "text": "We have 11 million well-paying jobs that we cannot find enough labor for.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.85,
+      "span": [
+        15882,
+        15955
+      ]
+    },
+    {
+      "id": "claim_653b6c4b57af431179937228",
+      "text": "And instead, we have a lot of people going to university to go study North African lesbian poetry. might sound good,",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        15956,
+        16072
+      ]
+    },
+    {
+      "id": "claim_53896fb20ef9bafd56c06c40",
+      "text": "Some college is good for you.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        16250,
+        16279
+      ]
+    },
+    {
+      "id": "claim_9a3798ba4c568829f2c3f410",
+      "text": "I believe Hillsdale College is America's greatest college and I'm a big proponent of that.",
+      "claim_type": "introspective",
+      "speaker": "UNKNOWN",
+      "confidence": 0.9,
+      "span": [
+        16347,
+        16437
+      ]
+    },
+    {
+      "id": "claim_c27abe32219a0a8e1d2b5226",
+      "text": "So in the morning I actually had a lecture on development policy and one of the key authors on sort of development economics is Nusbang who talks about how liberal arts sort of engages you critically.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        16682,
+        16882
+      ]
+    },
+    {
+      "id": "claim_58b76671a0380a46a08ac6c7",
+      "text": "Um uh uh is maybe yeah that that makes you fact you don't know shows how rotten to the core universities have become.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        17015,
+        17132
+      ]
+    },
+    {
+      "id": "claim_39c0a222994dd8f5c22e2bf5",
+      "text": "You're taking one example and telling conservatives and hordes of young people that college is a scam.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        17133,
+        17235
+      ]
+    },
+    {
+      "id": "claim_a2b3986b1f96930c5d4451d2",
+      "text": "If college is a scam, then DNA wouldn't have been discovered.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        17399,
+        17460
+      ]
+    },
+    {
+      "id": "claim_7439a3bad7e6bb55e3cddc9a",
+      "text": "Cancer research.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        17461,
+        17477
+      ]
+    },
+    {
+      "id": "claim_ab19d1b20f87fb1cfbff1f8f",
+      "text": "But at most colleges in the west, they've gone away from places of inquiry and appreciation of what is good and what is beautiful and into this incessant oppression Olympics of trying to deconstruct the core cannon that is our birth certificate.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        17718,
+        17963
+      ]
+    },
+    {
+      "id": "claim_8c777266e788bbf7c5c8351a",
+      "text": "In America, it is objectively true.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        18042,
+        18077
+      ]
+    },
+    {
+      "id": "claim_1d73dbbe0348299538fa9327",
+      "text": "They got they tried to bring it back with petitions and the university said no teaching western civilization is racist.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        18210,
+        18329
+      ]
+    },
+    {
+      "id": "claim_67b0990f19ff7f6d5418db22",
+      "text": "Shakespeare is not taught at m let me finish Shakespeare is not taught at major universities across America because it's deemed as racist.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        18330,
+        18468
+      ]
+    },
+    {
+      "id": "claim_7973b6e6e2698d64ab0bbc03",
+      "text": "You would be surprised at how wretched to the core some of these colleges have become in America.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        18693,
+        18790
+      ]
+    },
+    {
+      "id": "claim_940fc82ab6421b0f2dbb593c",
+      "text": "If you look at the global innovation index, America, which is predominantly a lot of their majors are in humanities and liberal arts, they're number two on the global innovation index.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        18791,
+        18975
+      ]
+    },
+    {
+      "id": "claim_9ad8e5a77335da3347ceb5e4",
+      "text": "China is somewhere near 13.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        18976,
+        19003
+      ]
+    },
+    {
+      "id": "claim_d54fe467b6d3bfd8d81f2dcf",
+      "text": "If you look at every metric, a 14,000 C, 14,000 CEOs, 40% did humanities and liberal arts.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.85,
+      "span": [
+        19004,
+        19094
+      ]
+    },
+    {
+      "id": "claim_625749720de564dd19630814",
+      "text": "There is a value in liberal arts.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        19095,
+        19128
+      ]
+    },
+    {
+      "id": "claim_f661767dbe63746016ce8a52",
+      "text": "That is an empirical poll.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        19277,
+        19303
+      ]
+    },
+    {
+      "id": "claim_4ed0f6ee7f19ac18cfbe9302",
+      "text": "They increasingly do not have reverence or gratitude for the United States of America.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        19304,
+        19390
+      ]
+    },
+    {
+      "id": "claim_58977c5a913dbcd3f0a988b0",
+      "text": "But in our country, 40% of kids that enter college do not graduate.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.85,
+      "span": [
+        19496,
+        19563
+      ]
+    },
+    {
+      "id": "claim_676b9cafee181745a02c315a",
+      "text": "There are all these madeup degrees.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        19672,
+        19707
+      ]
+    },
+    {
+      "id": "claim_c435fea7969109bff068a54c",
+      "text": "Your tutoring system here is objectively great.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        19788,
+        19835
+      ]
+    },
+    {
+      "id": "claim_a8eeee763cfcc2de406ab7db",
+      "text": "I'm glad you guys have it.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        19836,
+        19862
+      ]
+    },
+    {
+      "id": "claim_36a0de15d25a338d8991b81d",
+      "text": "The class sizes in America are four to 500 students sometimes per introductory course to go hundreds of thousands of dollars into debt study things that don't matter to find jobs that do not exist.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        19863,
+        20060
+      ]
+    },
+    {
+      "id": "claim_faea8b943f2fc2d2f2b81cb0",
+      "text": "And so let me just make one final point is that of course some people should be going to college.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        20061,
+        20158
+      ]
+    },
+    {
+      "id": "claim_cd1e87dd4b70ea924bc6bcea",
+      "text": "But generally in the United States of America it has become a racket of debt.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        20159,
+        20236
+      ]
+    },
+    {
+      "id": "claim_041da32402a2e9e78b080ab8",
+      "text": "It has become a burden and a place where we're actually not putting our best and brightest into the job field itself to be equipped for the jobs of the future. instead um we we have a lot of baristas at Starbucks with philosophy degrees.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        20237,
+        20474
+      ]
+    },
+    {
+      "id": "claim_cb598c0e344bf159b21efde6",
+      "text": "Turning Point USA has over 30,000 chapters uh 3,000 3,000 chapters across US universities.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        20652,
+        20742
+      ]
+    },
+    {
+      "id": "claim_57793bc4edb677ab5c423945",
+      "text": "So are you arguing that students including conservatives lack the critical thinking skills to sort of decide political ideologies, political beliefs that they're so dumbfounded that they can't decide for themselves what's right and what's wrong.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        20743,
+        20988
+      ]
+    },
+    {
+      "id": "claim_b420035c7272698a4e2a691c",
+      "text": "And that your whole premise is on the fact that students like us, we lack critical thought in deciding what is taught in schools.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        20989,
+        21118
+      ]
+    },
+    {
+      "id": "claim_b272023a230108140f88aa82",
+      "text": "but in America, we have millions of people that go to these massive state schools that have humanities departments that are not reading the great books, that do not have a tutoring system, that are unfortunately laced with the most anti-western thought imaginable.",
+      "claim_type": "normative",
+      "speaker": "UNKNOWN",
+      "confidence": 0.8,
+      "span": [
+        21181,
+        21445
+      ]
+    },
+    {
+      "id": "claim_70c0d554e8f55e60bee084f5",
+      "text": "I don't really quite following what one thing has to do with the other, why 3,000 chapters has something to do with your indictment.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        21446,
+        21578
+      ]
+    },
+    {
+      "id": "claim_3afc74d2d668ddc062913020",
+      "text": "You can clarify a bit that in general should be a place that lift you up to what is good, true, and beautiful to study the great things that have been to develop your soul and develop your character.",
+      "claim_type": "empirical",
+      "speaker": "UNKNOWN",
+      "confidence": 0.75,
+      "span": [
+        21633,
+        21832
+      ]
+    },
+    {
+      "id": "claim_2849d3f90e98c77bbabd66ef",
+      "text": "Far too often colleges create ungrateful, pessimistic and nihilistic revolutionaries that want to tear down what was before and instead have no alternative to build the future and the West is suffering because of it.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        21911,
+        22127
+      ]
+    },
+    {
+      "id": "claim_07167a5abd272b534bdb4d25",
+      "text": "So my question is um I agree that stable monogous relationships often produce the best outcomes for society.",
+      "claim_type": "unclassified",
+      "speaker": "UNKNOWN",
+      "confidence": 0.3,
+      "span": [
+        22459,
+        22567
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "id": "frame_0_39ce62",
+      "frame_type": "CLAIM",
+      "speaker": "UNKNOWN",
+      "summary": "UNKNOWN's argument",
+      "child_claims": [
+        "claim_6b6e30f9c9a05993cc2c19cf",
+        "claim_fecd51c67cde7762a9b5f0b2",
+        "claim_e8bb6f524cc4188823dbb92a",
+        "claim_b83cec0d82a49d3a79020497",
+        "claim_b2c7db7dd8f1700b273f108e",
+        "claim_04ca1792b3c498a95040fbdb",
+        "claim_06d8f6f74ccfbe2a855de692",
+        "claim_68d183a6d6dcc1bed271482d",
+        "claim_1fa09d1a9215c01e64769087",
+        "claim_d658c8826430321f952c9a8c",
+        "claim_204022b04b569d96cc79be8d",
+        "claim_b6dfc3c18042c15944d4a2a3",
+        "claim_82f1f1639defef01f5221eec",
+        "claim_1448153d420ef5997babc55c",
+        "claim_5c0af921e174de6d97d496fe",
+        "claim_78a08076a8e95b89dfbb3b06",
+        "claim_54cfc1d556ac051eedd87d83",
+        "claim_9d9e12d59c415c3751a65404",
+        "claim_99cdcefb0a5acd2846ab4d59",
+        "claim_ece5de5c94157e973b9c6eee",
+        "claim_7d56098f4c3ca1d07ab287c6",
+        "claim_db8ee0e8abb707a71a1421c0",
+        "claim_1f4b847981a4531d1b9adf6c",
+        "claim_906bc81e6eda38beab5db91f",
+        "claim_8b8531d5d9476a0da15cc334",
+        "claim_3bfb43f7a792dd760cd4fde0",
+        "claim_ec5cdfdeeabd47f135ab13cc",
+        "claim_4c4016121d08984d9cf35b47",
+        "claim_be0a16e905d656b812a03700",
+        "claim_b5a8df54df634846f9f0cea0",
+        "claim_18068311c63baa9733a54922",
+        "claim_9e966a65d6ae9659da9a8b47",
+        "claim_7991d98fa5168cff429a901d",
+        "claim_c5bbb62b18831fc5a8258ced",
+        "claim_61c8368c6f10023b1406ee3d",
+        "claim_9e6309f7c4112a77060ec53b",
+        "claim_ec7d474271b7ffe47485be6c",
+        "claim_191bbb9c83002bdad3c844b6",
+        "claim_ce1208b670379f299e03a3f9",
+        "claim_09b91bd4e31e07358b13a99b",
+        "claim_f1e346ac5eb30252d823fbe4",
+        "claim_3ab588f0f1639e3e78231d52",
+        "claim_69e9ac834e8202ad7c3d1a49",
+        "claim_1fe854cba41d9af0297346cf",
+        "claim_6983978dd6ee2e2d04778e10",
+        "claim_ccab2feb7113c428892ab189",
+        "claim_c2c40307f43b63e3f48867f1",
+        "claim_5751d482cb8c43c260c7d196",
+        "claim_9286e63d4fcff11e79d7d2da",
+        "claim_c245bd40dc2ede23adc97534",
+        "claim_5770b6a7f768e4ba0c4f5088",
+        "claim_96dda22656113fb1760a0fc9",
+        "claim_3b866d3a135da05acf344d1a",
+        "claim_a1056473a1778646b98d32b6",
+        "claim_4ede1ab545351caf20f6b505",
+        "claim_76bc5e43530a7622da86ab54",
+        "claim_4b6addd90ec2f72a5ed80eb6",
+        "claim_5fc6b5b3df02d359b11ead84",
+        "claim_556a918fa40e5e9f596e10a1",
+        "claim_b20c6a92fb8e9b3ef04a187a",
+        "claim_76e521fbb00194c66ad7f3cf",
+        "claim_6f6b70803bce53a63b4616d7",
+        "claim_1574d8e5a95e50e0e8204356",
+        "claim_16ee331d262ce8dbd1fcbcbb",
+        "claim_257a782429c1b02f84458833",
+        "claim_57c71a1089cc803b008ae967",
+        "claim_ced5ee5e66bf62410455295b",
+        "claim_4ee333d22a30db1b6792862d",
+        "claim_8ffaf5e92ff83fd0eede2718",
+        "claim_2d882f65bd423a0a67b31837",
+        "claim_55948abe9a497bf59581a9da",
+        "claim_78b73b8abe3f539f0d14e190",
+        "claim_fcdce74981c25cea9c1a451f",
+        "claim_eddd5fef72685db4f9576df1",
+        "claim_3af031d238e1444d93ee7951",
+        "claim_584f7e1335dd8fbd0f22dacf",
+        "claim_5c0729b1125d193ebc635f74",
+        "claim_fc1e34254411debd6757044d",
+        "claim_ba61eb4458c2993a39f62df8",
+        "claim_8d6bacc8485655776bf319e5",
+        "claim_e3d452db522578380f2bdbe7",
+        "claim_9b43f0290f5ca561b37b2de3",
+        "claim_77258241304aeab009a4bfcd",
+        "claim_d56f639dceb5dd92a5340bf6",
+        "claim_7bb1a8941f59e4d3331c2eac",
+        "claim_ec907d7225ae34eeae516ac6",
+        "claim_4c53e2f00a771da8b0f6aad2",
+        "claim_59c8750d005b206e5f1c68b1",
+        "claim_ad4d5be97285a840286eb85d",
+        "claim_92c579685cfc638885210fc6",
+        "claim_169af1a82da311b906492535",
+        "claim_37303e7c7477ccbb2720a3e4",
+        "claim_9f0fbbf04944000d4ec6d022",
+        "claim_41f4a81f0d980345ed7a825b",
+        "claim_41b6ecfd3684d52ef9b9906b",
+        "claim_2a8ce78e4e6f38c9cc13ecad",
+        "claim_5a56a6bcdfb11854cb6489d8",
+        "claim_0123d7be0ab6df2502075715",
+        "claim_ea5072befcc29edd5288495f",
+        "claim_b0741763652c07d17751fdd2",
+        "claim_653b6c4b57af431179937228",
+        "claim_53896fb20ef9bafd56c06c40",
+        "claim_9a3798ba4c568829f2c3f410",
+        "claim_c27abe32219a0a8e1d2b5226",
+        "claim_58b76671a0380a46a08ac6c7",
+        "claim_39c0a222994dd8f5c22e2bf5",
+        "claim_a2b3986b1f96930c5d4451d2",
+        "claim_7439a3bad7e6bb55e3cddc9a",
+        "claim_ab19d1b20f87fb1cfbff1f8f",
+        "claim_8c777266e788bbf7c5c8351a",
+        "claim_1d73dbbe0348299538fa9327",
+        "claim_67b0990f19ff7f6d5418db22",
+        "claim_7973b6e6e2698d64ab0bbc03",
+        "claim_940fc82ab6421b0f2dbb593c",
+        "claim_9ad8e5a77335da3347ceb5e4",
+        "claim_d54fe467b6d3bfd8d81f2dcf",
+        "claim_625749720de564dd19630814",
+        "claim_f661767dbe63746016ce8a52",
+        "claim_4ed0f6ee7f19ac18cfbe9302",
+        "claim_58977c5a913dbcd3f0a988b0",
+        "claim_676b9cafee181745a02c315a",
+        "claim_c435fea7969109bff068a54c",
+        "claim_a8eeee763cfcc2de406ab7db",
+        "claim_36a0de15d25a338d8991b81d",
+        "claim_faea8b943f2fc2d2f2b81cb0",
+        "claim_cd1e87dd4b70ea924bc6bcea",
+        "claim_041da32402a2e9e78b080ab8",
+        "claim_cb598c0e344bf159b21efde6",
+        "claim_57793bc4edb677ab5c423945",
+        "claim_b420035c7272698a4e2a691c",
+        "claim_b272023a230108140f88aa82",
+        "claim_70c0d554e8f55e60bee084f5",
+        "claim_3afc74d2d668ddc062913020",
+        "claim_2849d3f90e98c77bbabd66ef",
+        "claim_07167a5abd272b534bdb4d25"
+      ],
+      "parent_frame": null
+    }
+  ],
+  "fact_checks": [],
+  "stats": {
+    "tasks_executed": 184,
+    "elapsed_ms": 35,
+    "claims_count": 135,
+    "frames_count": 1,
+    "fact_checks_count": 0
+  }
+}
